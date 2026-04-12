@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>notlousybook / FluentPySide</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
+</head>
+<body>
+  <header class="site-header"><div class="container"><a class="logo" href="../index.html">notlousybook</a></div></header>
+  <main class="container repo-view">
+    <p><a href="../projects.html">← Back to Projects</a></p>
+    <h1 id="repo-title">Loading…</h1>
+    <p id="repo-desc"></p>
+    <div id="repo-meta" class="meta"></div>
+    <hr />
+    <div id="readme">Loading README…</div>
+  </main>
+  <footer class="site-footer container">© notlousybook</footer>
+  <script>
+    const REPO_NAME = 'FluentPySide';
+    async function loadRepo(){
+      try{
+        const apiRes = await fetch(`https://api.github.com/repos/notlousybook/${REPO_NAME}`);
+        if(!apiRes.ok){document.getElementById('repo-title').textContent = REPO_NAME;document.getElementById('repo-desc').textContent = 'Repository not found or private.';document.getElementById('readme').textContent='';return;}
+        const data = await apiRes.json();
+        document.title = `${data.full_name} — notlousybook`;
+        document.getElementById('repo-title').innerHTML = `<a href="${data.html_url}" target="_blank" rel="noopener">${data.full_name}</a>`;
+        document.getElementById('repo-desc').textContent = data.description || '';
+        document.getElementById('repo-meta').textContent = `★ ${data.stargazers_count || 0} • ${data.language || ''} • ${data.default_branch}`;
+        const raw = `https://raw.githubusercontent.com/notlousybook/${REPO_NAME}/${data.default_branch}/README.md`;
+        let md='';
+        try{ const r = await fetch(raw); if(r.ok) md = await r.text(); else md = '# No README found\\n\\nView on GitHub: ' + data.html_url; } catch(e){ md = '# README unavailable'; }
+        const html = marked.parse(md || '');
+        document.getElementById('readme').innerHTML = DOMPurify.sanitize(html);
+      }catch(e){ console.error(e); document.getElementById('readme').textContent='Error loading repository data.';}
+    }
+    loadRepo();
+  </script>
+</body>
+</html>
