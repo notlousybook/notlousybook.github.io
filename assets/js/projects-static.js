@@ -36,6 +36,34 @@
           </div>
         </article>
       `).join('');
+
+      // Enhance thumbnails for the first few repos by checking README for an image (rate-limited - limited to first 12)
+      try{
+        const maxThumbs = 12;
+        const list = Array.from(others).slice(0, maxThumbs);
+        list.forEach(async (r, idx) => {
+          try{
+            const raw = `https://raw.githubusercontent.com/notlousybook/${r.name}/${r.default_branch}/README.md`;
+            const mres = await fetch(raw);
+            if(!mres.ok) return;
+            const md = await mres.text();
+            let imgUrl = null;
+            const mdImg = md.match(/!\[[^\]]*\]\(([^)]+)\)/);
+            if(mdImg && mdImg[1]) imgUrl = mdImg[1].trim();
+            if(!imgUrl){
+              const htmlImg = md.match(/<img[^>]*src=["']([^"']+)["'][^>]*>/i);
+              if(htmlImg && htmlImg[1]) imgUrl = htmlImg[1].trim();
+            }
+            if(!imgUrl) return;
+            if(!/^https?:\/\//i.test(imgUrl) && !imgUrl.startsWith('data:')){
+              imgUrl = `https://raw.githubusercontent.com/notlousybook/${r.name}/${r.default_branch}/` + imgUrl.replace(/^\.\/?/,'');
+            }
+            const imgs = el.querySelectorAll('article.repo-card img');
+            const imgEl = imgs[idx];
+            if(imgEl) imgEl.src = imgUrl;
+          }catch(e){ console.warn('thumb', r.name, e) }
+        });
+      }catch(e){ console.warn('thumbs error', e) }
     }
   } catch(e) { console.error(e); if(el) el.textContent='Failed to load projects (see console).'; }
 })();
