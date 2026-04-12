@@ -9,7 +9,7 @@ body{background:radial-gradient(circle at 10% 10%, rgba(12,28,40,0.6), rgba(3,4,
 
 /* Hero */
 .hero{min-height:62vh;display:flex;align-items:center;position:relative;overflow:hidden;padding:0}
-.hero-overlay{max-width:52%;padding-left:6vw;padding-right:2rem;display:flex;align-items:center;justify-content:flex-start}
+.hero-overlay{max-width:46%;padding-left:6vw;padding-right:2rem;display:flex;align-items:center;justify-content:flex-start}
 .hero::after{content:'';position:absolute;right:-10%;top:-10%;width:60%;height:120%;background:radial-gradient(circle at 30% 30%, rgba(126,249,165,0.12), rgba(125,184,255,0.06)), linear-gradient(90deg, rgba(126,249,165,0.02), rgba(125,184,255,0.02));transform:rotate(18deg);filter:blur(40px);pointer-events:none}
 
 /* Title animation */
