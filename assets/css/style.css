@@ -8,9 +8,9 @@ body{margin:0;background:radial-gradient(circle at 10% 10%, #08121b 0%, var(--bg
 .site-header .logo{font-family:var(--font-display);font-size:1.6rem;color:var(--accent);text-decoration:none}
 .site-nav{display:flex;gap:12px}
 .site-nav a{color:var(--fg);text-decoration:none;opacity:0.95;font-weight:500}
-.hero{position:relative;height:100vh;min-height:620px;overflow:hidden;display:block}
+.hero{position:relative;height:62vh;min-height:480px;overflow:hidden;display:block}
 #hero-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;filter:drop-shadow(0 60px 140px rgba(0,0,0,0.7));transform:translateZ(0);}
-.hero-overlay{position:relative;z-index:2;padding:72px;max-width:900px;color:var(--fg);}
+.hero-overlay{position:relative;z-index:2;padding:48px 72px;max-width:52%;color:var(--fg);display:flex;align-items:center;justify-content:flex-start}
 .hero-title{font-family:var(--font-display);font-size:64px;margin:0 0 8px;letter-spacing:-1px;text-shadow:0 6px 28px rgba(0,0,0,0.7);line-height:0.95}
 .hero-sub{margin:0 0 18px;color:var(--muted)}
 .cta{display:inline-block;padding:12px 20px;background:linear-gradient(90deg,var(--accent),#5ef0c2);color:#042022;border-radius:10px;text-decoration:none;font-weight:700;box-shadow:0 8px 30px rgba(46,191,150,0.12)}
@@ -27,8 +27,8 @@ body{margin:0;background:radial-gradient(circle at 10% 10%, #08121b 0%, var(--bg
 @media(max-width:720px){.hero-title{font-size:32px}.site-nav{display:none}}
 .hero{display:flex;align-items:center;justify-content:center}
 .hero-overlay{display:flex;align-items:center;justify-content:center}
-.hero-card{background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));border-radius:18px;padding:40px;backdrop-filter:blur(12px);box-shadow:0 40px 140px rgba(0,0,0,0.75);max-width:920px;width:100%;transform:translateZ(0);border:1px solid rgba(255,255,255,0.03)}
-.hero-title{font-family:var(--font-display);font-size:88px;line-height:0.92;background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-1px;text-transform:uppercase}
+.hero-card{background:linear-gradient(135deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01));border-radius:16px;padding:28px;backdrop-filter:blur(10px);box-shadow:0 24px 60px rgba(0,0,0,0.6);max-width:620px;width:100%;transform:translateZ(0);border:1px solid rgba(255,255,255,0.03)}
+.hero-title{font-family:var(--font-display);font-size:56px;line-height:1;background:linear-gradient(90deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-1px;text-transform:none}
 .hero-sub{font-size:1.25rem;opacity:0.95;margin-bottom:18px}
 .hero-overlay .hero-sub{font-size:1.125rem;color:var(--muted);margin-bottom:12px}
 

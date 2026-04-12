@@ -9,7 +9,7 @@
   renderer.setSize(window.innerWidth, window.innerHeight);
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
-  camera.position.set(0,0,6);
+  camera.position.set(0,0,8);
 
   // fog
   scene.fog = new THREE.FogExp2(0x031016, 0.06);
@@ -28,7 +28,7 @@
   const geom = new THREE.IcosahedronGeometry(1.6, 5);
   const mat = new THREE.MeshPhysicalMaterial({color:0x9ef2cf, metalness:0.5, roughness:0.12, clearcoat:0.3, clearcoatRoughness:0.05, ior:1.4, reflectivity:0.5, emissive:0x042022, emissiveIntensity:0.08});
   const mesh = new THREE.Mesh(geom, mat);
-  mesh.scale.set(1.05,1.05,1.05);
+  mesh.scale.set(0.85,0.85,0.85);
   scene.add(mesh);
 
   // particle field
