@@ -3,17 +3,102 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Downloads and releases for notlousybook projects, focused on DeepSeek-Desktop.">
   <title>Downloads — notlousybook</title>
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-  <header class="site-header"><div class="container"><a class="logo" href="index.html">notlousybook</a></div></header>
-  <main class="container">
-    <h1>Downloads</h1>
-    <div id="release-list">Loading releases...</div>
-    <p>Releases above are auto-fetched from the DeepSeek-Desktop GitHub releases. If a release has assets they will be linked.</p>
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a class="brand" href="index.html" aria-label="notlousybook home">
+        <span class="brand__mark">NB</span>
+        <span class="brand__text">notlousybook</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="projects.html">Projects</a>
+        <a href="downloads.html">Downloads</a>
+        <a href="youtube.html">YouTube</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <div class="site-header__actions">
+        <a class="button button--ghost button--small" href="https://github.com/notlousybook/DeepSeek-Desktop/releases" target="_blank" rel="noopener">Releases</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy fade-in-up">
+          <p class="eyebrow">Downloads</p>
+          <h1 class="heading-xl">Release-ready<br>builds without<br>the clutter.</h1>
+          <p class="lede">This page focuses on the flagship DeepSeek-Desktop project and pulls in its public GitHub releases so visitors can grab assets quickly.</p>
+          <div class="hero-actions">
+            <a class="button button--primary" href="https://github.com/notlousybook/DeepSeek-Desktop" target="_blank" rel="noopener">Open source repo</a>
+            <a class="button button--secondary" href="projects/view.html?repo=DeepSeek-Desktop">Project detail</a>
+          </div>
+          <div class="hero-metrics">
+            <article class="metric">
+              <div class="metric__value">GitHub</div>
+              <div class="metric__label">release source</div>
+            </article>
+            <article class="metric">
+              <div class="metric__value">Assets</div>
+              <div class="metric__label">downloadable files</div>
+            </article>
+            <article class="metric">
+              <div class="metric__value">Clean</div>
+              <div class="metric__label">simple distribution</div>
+            </article>
+          </div>
+        </div>
+
+        <div class="hero-panel">
+          <article class="glass-card content-card">
+            <p class="eyebrow">Release target</p>
+            <h2 class="heading-md">DeepSeek-Desktop</h2>
+            <p>The same flagship repo featured on the home page, with source, releases, and package assets all in one place.</p>
+          </article>
+          <article class="glass-card content-card">
+            <p class="eyebrow">Reminder</p>
+            <p>Release cards below are pulled directly from GitHub, so the list stays accurate without any manual edits.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Release feed</p>
+            <h2 class="heading-lg">Latest builds</h2>
+          </div>
+        </div>
+        <div id="release-list" class="stack"></div>
+      </div>
+    </section>
   </main>
-  <script src="assets/js/downloads.js"></script>
-  <footer class="site-footer container">© notlousybook</footer>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <p class="footer-title">notlousybook</p>
+        <p class="footer-copy">Public builds and release assets for the flagship project.</p>
+      </div>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="projects.html">Projects</a>
+        <a href="youtube.html">YouTube</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+    <div class="container footer-note">© <span data-year></span> notlousybook</div>
+  </footer>
+
+  <script src="assets/js/site-data.js"></script>
+  <script src="assets/js/site.js"></script>
 </body>
 </html>

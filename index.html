@@ -3,17 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>notlousybook — Projects & Creations</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Climate+Crisis:wght@400;700&family=Figtree:wght@300;400;700&family=DM+Sans:wght@400;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <meta name="description" content="Creator portfolio for notlousybook — GitHub projects, YouTube uploads, and polished static pages.">
+  <title>notlousybook — Creator portfolio</title>
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
   <header class="site-header">
-    <div class="container">
-      <a class="logo" href="index.html">notlousybook</a>
-      <nav class="site-nav">
+    <div class="container site-header__inner">
+      <a class="brand" href="index.html" aria-label="notlousybook home">
+        <span class="brand__mark">NB</span>
+        <span class="brand__text">notlousybook</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
         <a href="index.html">Home</a>
         <a href="projects.html">Projects</a>
         <a href="downloads.html">Downloads</a>
@@ -21,67 +22,140 @@
         <a href="about.html">About</a>
         <a href="contact.html">Contact</a>
       </nav>
+      <div class="site-header__actions">
+        <a class="button button--ghost button--small" href="https://github.com/notlousybook" target="_blank" rel="noopener">GitHub</a>
+      </div>
     </div>
   </header>
 
   <main>
     <section class="hero">
-      <canvas id="hero-canvas" aria-hidden="true"></canvas>
-      <div class="hero-overlay container">
-        <div class="hero-card">
-          <h1 class="hero-title">notlousybook</h1>
-          <p class="hero-sub">Majestic, lightweight apps & experiments — DeepSeek, ML, and creative utilities.</p>
-          <p><a class="cta" href="projects.html">Explore Projects</a></p>
+      <div class="container hero-grid">
+        <div class="hero-copy fade-in-up">
+          <p class="eyebrow">Creator portfolio · GitHub · YouTube</p>
+          <h1 class="heading-xl">Playful software,<br>sharp visuals,<br>and creator energy.</h1>
+          <p class="lede">I build lightweight apps, experimental tools, and polished pages that feel fast, visual, and fun. This site pulls together the public GitHub work and the latest channel uploads.</p>
+          <div class="hero-actions">
+            <a class="button button--primary" href="projects.html">Explore projects</a>
+            <a class="button button--secondary" href="youtube.html">Watch videos</a>
+          </div>
+          <div class="hero-metrics">
+            <article class="metric">
+              <div class="metric__value" data-repo-count>—</div>
+              <div class="metric__label">public repos</div>
+            </article>
+            <article class="metric">
+              <div class="metric__value" data-video-count>—</div>
+              <div class="metric__label">recent uploads</div>
+            </article>
+            <article class="metric">
+              <div class="metric__value">Static</div>
+              <div class="metric__label">fast GitHub Pages site</div>
+            </article>
+          </div>
+        </div>
+
+        <div class="hero-panel">
+          <div id="home-featured-repo"></div>
+          <article class="glass-card hero-spotlight">
+            <div class="hero-spotlight__head">
+              <p class="eyebrow">Latest upload</p>
+              <span class="tag">YouTube</span>
+            </div>
+            <a id="home-latest-video" class="latest-video" href="#" target="_blank" rel="noopener">
+              <img id="home-latest-video-thumb" class="latest-video__thumb" src="" alt="">
+              <div>
+                <h2 id="home-latest-video-title" class="latest-video__title">Loading…</h2>
+                <p id="home-latest-video-meta" class="latest-video__meta"></p>
+              </div>
+            </a>
+          </article>
         </div>
       </div>
     </section>
 
-    <section class="spotlight container">
-      <h2>Featured: DeepSeek-Desktop</h2>
-      <p>A lightweight, feature-packed DeepSeek desktop app — <a href="https://github.com/notlousybook/DeepSeek-Desktop" target="_blank" rel="noopener">view on GitHub</a>.</p>
-    </section>
-
-    <section class="home-features container">
-      <div class="feature-grid">
-        <div id="home-repos" class="feature-col">
-          <h3>Top projects</h3>
-          <div id="home-repo-list">Loading...</div>
+    <section class="section">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Projects</p>
+            <h2 class="heading-lg">Public repos with personality</h2>
+          </div>
+          <a class="button button--ghost button--small" href="projects.html">Browse all</a>
         </div>
-        <div id="home-media" class="feature-col">
-          <h3>Latest videos</h3>
-          <div id="home-video-list">Loading...</div>
-          <p style="margin-top:12px"><a class="cta" href="youtube.html">View all videos</a></p>
-        </div>
+        <div id="home-project-grid" class="card-grid card-grid--wide"></div>
       </div>
     </section>
 
+    <section class="section">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">YouTube</p>
+            <h2 class="heading-lg">Recent uploads</h2>
+          </div>
+          <a class="button button--ghost button--small" href="youtube.html">Open channel</a>
+        </div>
+        <div id="home-video-grid" class="card-grid"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container section-split">
+        <article class="glass-card content-card">
+          <p class="eyebrow">Why this site exists</p>
+          <h2 class="heading-md">A personal hub, not a generic template.</h2>
+          <p>It should feel like a creator landing page: high-contrast, direct, and full of real projects instead of filler.</p>
+          <div class="inline-actions">
+            <a class="button button--primary button--small" href="about.html">About me</a>
+            <a class="button button--secondary button--small" href="contact.html">Contact</a>
+          </div>
+        </article>
+
+        <article class="glass-card content-card">
+          <p class="eyebrow">Quick links</p>
+          <div class="panel-list">
+            <div class="panel-row">
+              <div>
+                <strong>GitHub</strong>
+                <span><a class="inline-link" href="https://github.com/notlousybook" target="_blank" rel="noopener">notlousybook</a></span>
+              </div>
+            </div>
+            <div class="panel-row">
+              <div>
+                <strong>YouTube</strong>
+                <span><a class="inline-link" href="https://www.youtube.com/@notlousybook" target="_blank" rel="noopener">@notlousybook</a></span>
+              </div>
+            </div>
+            <div class="panel-row">
+              <div>
+                <strong>Downloads</strong>
+                <span><a class="inline-link" href="downloads.html">Releases and builds</a></span>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
   </main>
 
-  <footer class="site-footer container">
-    <div>© notlousybook</div>
-    <div class="social">
-      <a href="https://github.com/notlousybook" target="_blank" rel="noopener">GitHub</a>
-      <a href="https://www.youtube.com/@notlousybook" target="_blank" rel="noopener">YouTube</a>
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <p class="footer-title">notlousybook</p>
+        <p class="footer-copy">Crafting playful software, polished interfaces, and creator-first content.</p>
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/notlousybook" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://www.youtube.com/@notlousybook" target="_blank" rel="noopener">YouTube</a>
+        <a href="projects.html">Projects</a>
+        <a href="contact.html">Contact</a>
+      </div>
     </div>
+    <div class="container footer-note">© <span data-year></span> notlousybook</div>
   </footer>
 
-  <!-- Lazy-load 3D hero on desktop -->
-  <script>
-  (function(){
-    try{
-      var shouldLoad = (typeof window !== 'undefined') && window.innerWidth >= 900 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if(!shouldLoad) return;
-      var s1 = document.createElement('script');
-      s1.src = 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js';
-      s1.defer = true; document.body.appendChild(s1);
-      s1.onload = function(){
-        var s2 = document.createElement('script');
-        s2.src = 'assets/js/three-hero-upgrade.js'; s2.defer = true; document.body.appendChild(s2);
-      };
-    }catch(e){console.warn('3D hero load skipped',e)}
-  })();
-  </script>
-  <script src="assets/js/home-static.js"></script>
-  <script src="assets/js/main.js"></script>
+  <script src="assets/js/site-data.js"></script>
+  <script src="assets/js/site.js"></script>
 </body>
 </html>

@@ -1,24 +1,25 @@
-# notlousybook — Static showcase site
+# notlousybook — creator portfolio
 
-This repo is a scaffolded static site (HTML/CSS/JS) showcasing projects and YouTube content for the notlousybook account.
+Static HTML/CSS/JS site for the notlousybook GitHub and YouTube presence.
 
-How to run locally
+## What it does
 
-- Open `index.html` in a browser. For full functionality (Three.js hero) use a modern browser.
-- To enable automatic YouTube fetch, copy `assets/js/config-sample.js` to `assets/js/config.js` and add your API key and channel ID (do not commit `config.js`).
+- Shows the public GitHub repos for `notlousybook`
+- Highlights the flagship `DeepSeek-Desktop` project
+- Embeds the YouTube uploads playlist and latest uploads
+- Provides repo detail pages powered by GitHub READMEs
 
-YouTube API configuration
+## Local usage
 
-- Copy `assets/js/config-sample.js` to `assets/js/config.js` and set `window.YT_API_KEY = 'YOUR_KEY'` and `window.YT_CHANNEL_ID = 'YOUR_CHANNEL_ID'` (do not commit `config.js`).
-- After adding `config.js`, `youtube.html` will fetch recent uploads automatically.
+Open `index.html` in a browser, or serve the repo with any static server.
 
-Deployment
+## Deployment
 
-- Deploy to GitHub Pages by pushing to a repository named `notlousybook.github.io` or enabling Pages in repository settings.
+Push to `notlousybook.github.io` and keep `CNAME` pointed at `notlousy.me`.
 
-Next steps
+## Notes
 
-- Replace placeholder thumbnails with real screenshots
-- Update About/Contact copy as needed
-- Provide Formspree form endpoint or contact address for the contact form
+- The site uses public GitHub API data at runtime.
+- YouTube uploads are rendered from a static feed snapshot in `assets/js/site-data.js`.
+- Repository detail pages live at `projects/view.html?repo=<repo-name>`.
 

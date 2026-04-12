@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Repository detail page for notlousybook projects.">
   <title>Repository — notlousybook</title>
   <link rel="stylesheet" href="../assets/css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -10,9 +11,12 @@
 </head>
 <body>
   <header class="site-header">
-    <div class="container">
-      <a class="logo" href="../index.html">notlousybook</a>
-      <nav class="site-nav">
+    <div class="container site-header__inner">
+      <a class="brand" href="../index.html" aria-label="notlousybook home">
+        <span class="brand__mark">NB</span>
+        <span class="brand__text">notlousybook</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
         <a href="../index.html">Home</a>
         <a href="../projects.html">Projects</a>
         <a href="../downloads.html">Downloads</a>
@@ -20,56 +24,47 @@
         <a href="../about.html">About</a>
         <a href="../contact.html">Contact</a>
       </nav>
+      <div class="site-header__actions">
+        <a class="button button--ghost button--small" href="https://github.com/notlousybook" target="_blank" rel="noopener">GitHub</a>
+      </div>
     </div>
   </header>
 
-  <main class="container repo-view">
-    <p><a href="../projects.html">← Back to Projects</a></p>
-    <h1 id="repo-title">Loading…</h1>
-    <p id="repo-desc"></p>
-    <div id="repo-meta" class="meta" style="margin-bottom:18px;color:var(--muted)"></div>
-    <hr />
-    <div id="readme">Loading README…</div>
+  <main class="container repo-shell">
+    <a class="back-link" href="../projects.html">← Back to Projects</a>
+    <section class="glass-card repo-hero">
+      <div>
+        <p class="eyebrow">GitHub repository</p>
+        <h1 id="repo-title" class="heading-lg">Loading…</h1>
+        <p id="repo-desc" class="lede"></p>
+        <div id="repo-meta" class="chips"></div>
+        <div id="repo-actions" class="hero-actions"></div>
+      </div>
+      <div id="repo-cover" class="repo-hero__media"></div>
+    </section>
+
+    <section class="glass-card content-card prose">
+      <div id="readme">Loading README…</div>
+    </section>
   </main>
 
-  <footer class="site-footer container">© notlousybook</footer>
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <p class="footer-title">notlousybook</p>
+        <p class="footer-copy">Detailed repository views powered by GitHub README content.</p>
+      </div>
+      <div class="footer-links">
+        <a href="../projects.html">Projects</a>
+        <a href="../downloads.html">Downloads</a>
+        <a href="../youtube.html">YouTube</a>
+        <a href="../contact.html">Contact</a>
+      </div>
+    </div>
+    <div class="container footer-note">© <span data-year></span> notlousybook</div>
+  </footer>
 
-  <script>
-    async function loadRepo(){
-      const params = new URLSearchParams(location.search);
-      const repo = params.get('repo');
-      const readmeEl = document.getElementById('readme');
-      const titleEl = document.getElementById('repo-title');
-      const descEl = document.getElementById('repo-desc');
-      const metaEl = document.getElementById('repo-meta');
-      if(!repo){ readmeEl.textContent = 'No repo specified.'; return; }
-      try{
-        const apiRes = await fetch(`https://api.github.com/repos/notlousybook/${repo}`);
-        if(!apiRes.ok){ titleEl.textContent = repo; descEl.textContent = 'Repository not found or private.'; readmeEl.textContent = '';
-          return; }
-        const data = await apiRes.json();
-        document.title = `${data.full_name} — notlousybook`;
-        titleEl.innerHTML = `<a href="${data.html_url}" target="_blank" rel="noopener">${data.full_name}</a>`;
-        descEl.textContent = data.description || '';
-        metaEl.textContent = `★ ${data.stargazers_count} • ${data.language || ''} • ${data.default_branch}`;
-
-        // Try to fetch raw README.md from default branch
-        const raw = `https://raw.githubusercontent.com/notlousybook/${repo}/${data.default_branch}/README.md`;
-        let md = '';
-        try{
-          const r = await fetch(raw);
-          if(r.ok){ md = await r.text(); }
-          else { md = '# No README found\n\nView the repository on GitHub for details.'; }
-        }catch(e){ md = '# README unavailable'; }
-
-        const html = marked.parse(md || '');
-        readmeEl.innerHTML = DOMPurify.sanitize(html);
-      }catch(e){
-        console.error(e);
-        readmeEl.textContent = 'Error loading repository data.';
-      }
-    }
-    loadRepo();
-  </script>
+  <script>const REPO_NAME = new URLSearchParams(location.search).get('repo') || 'DeepSeek-Desktop';</script>
+  <script src="../assets/js/repo-view.js"></script>
 </body>
 </html>

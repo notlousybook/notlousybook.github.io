@@ -3,35 +3,128 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="YouTube channel showcase for notlousybook with the latest uploads and channel embed.">
   <title>YouTube — notlousybook</title>
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-  <header class="site-header"><div class="container"><a class="logo" href="index.html">notlousybook</a></div></header>
-  <main class="container">
-    <h1>YouTube</h1>
-    <p>Channel: <a href="https://www.youtube.com/@notlousybook" target="_blank" rel="noopener">notlousybook</a></p>
-    <p>Subscribe button:</p>
-    <div>
-      <iframe width="320" height="180" src="https://www.youtube.com/embed?listType=user_uploads&list=notlousybook" frameborder="0" allowfullscreen></iframe>
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a class="brand" href="index.html" aria-label="notlousybook home">
+        <span class="brand__mark">NB</span>
+        <span class="brand__text">notlousybook</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="projects.html">Projects</a>
+        <a href="downloads.html">Downloads</a>
+        <a href="youtube.html">YouTube</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <div class="site-header__actions">
+        <a class="button button--ghost button--small" href="https://www.youtube.com/@notlousybook" target="_blank" rel="noopener">Channel</a>
+      </div>
     </div>
-    <p>Video gallery and automatic embeds added below. If you want live updates from the channel, provide a YouTube API key; current implementation uses manual thumbnails and embeds.</p>
-    <div id="yt-grid" class="yt-grid"></div>
-    <script src="assets/js/config-sample.js"></script>
-<script>
-(async function(){
-  try{
-    const res = await fetch('assets/js/config.js',{method:'HEAD'});
-    if(res.ok){ var s=document.createElement('script'); s.src='assets/js/config.js'; document.body.appendChild(s); await new Promise(r=>s.onload=r); }
-  }catch(e){}
-  var s2=document.createElement('script'); s2.src='assets/js/youtube-api.js'; document.body.appendChild(s2);
-  s2.onload=function(){
-    if(window.YT_API_KEY && window.YT_CHANNEL_ID){ initYouTubeGrid(); } else { var s3=document.createElement('script'); s3.src='assets/js/youtube.js'; document.body.appendChild(s3); console.info('YouTube API key not set; using manual embeds. Copy assets/js/config-sample.js to assets/js/config.js and add keys to enable automatic fetch.'); }
-  };
-})();
-</script>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy fade-in-up">
+          <p class="eyebrow">YouTube</p>
+          <h1 class="heading-xl">Edits,<br>music-driven clips,<br>and AI-laced experiments.</h1>
+          <p class="lede">The channel leans into fast visuals and weirdly polished ideas. This page pulls the latest uploads into one clean, scroll-friendly view.</p>
+          <div class="hero-actions">
+            <a class="button button--primary" href="https://www.youtube.com/@notlousybook" target="_blank" rel="noopener">Subscribe</a>
+            <a class="button button--secondary" href="https://www.youtube.com/@notlousybook/videos" target="_blank" rel="noopener">Browse uploads</a>
+          </div>
+          <div class="hero-metrics">
+            <article class="metric">
+              <div class="metric__value" data-video-count>—</div>
+              <div class="metric__label">featured uploads</div>
+            </article>
+            <article class="metric">
+              <div class="metric__value">Live</div>
+              <div class="metric__label">playlist embed</div>
+            </article>
+            <article class="metric">
+              <div class="metric__value">@</div>
+              <div class="metric__label" data-youtube-playlist>@notlousybook</div>
+            </article>
+          </div>
+        </div>
+
+        <div class="hero-panel">
+          <article class="glass-card content-card">
+            <p class="eyebrow">Channel feed</p>
+            <h2 class="heading-md">Latest uploads, first.</h2>
+            <p>Top videos are pulled into the layout below so the page feels current without a custom backend or API key.</p>
+          </article>
+          <article class="glass-card content-card">
+            <p class="eyebrow">Playlist</p>
+            <p>Uploads playlist: <a class="inline-link" href="https://www.youtube.com/playlist?list=UUBNE8MNvq1XppUmpAs20m4w" target="_blank" rel="noopener">Open on YouTube</a></p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container section-split">
+        <div class="media-frame">
+          <iframe
+            src="https://www.youtube.com/embed/videoseries?list=UUBNE8MNvq1XppUmpAs20m4w"
+            title="notlousybook uploads playlist"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen></iframe>
+        </div>
+        <div class="stack">
+          <article class="glass-card content-card">
+            <p class="eyebrow">Channel focus</p>
+            <h2 class="heading-md">Visual-first, creator-first, slightly unhinged.</h2>
+            <p>The videos blend music, AI, and motion-heavy editing. It’s the same energy as the site: playful, clean, and direct.</p>
+          </article>
+          <article class="glass-card content-card">
+            <p class="eyebrow">Quick actions</p>
+            <div class="inline-actions">
+              <a class="button button--primary button--small" href="https://www.youtube.com/@notlousybook" target="_blank" rel="noopener">Open channel</a>
+              <a class="button button--secondary button--small" href="contact.html">Contact</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Latest uploads</p>
+            <h2 class="heading-lg">Recent videos</h2>
+          </div>
+        </div>
+        <div id="youtube-grid" class="card-grid"></div>
+      </div>
+    </section>
   </main>
-  <footer class="site-footer container">© notlousybook</footer>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <p class="footer-title">notlousybook</p>
+        <p class="footer-copy">Music edits, AI experiments, and creator-friendly clips from the channel.</p>
+      </div>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="projects.html">Projects</a>
+        <a href="downloads.html">Downloads</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+    <div class="container footer-note">© <span data-year></span> notlousybook</div>
+  </footer>
+
+  <script src="assets/js/site-data.js"></script>
+  <script src="assets/js/site.js"></script>
 </body>
 </html>
-
