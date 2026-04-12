@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>YouTube — notlousybook</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <header class="site-header"><div class="container"><a class="logo" href="index.html">notlousybook</a></div></header>
+  <main class="container">
+    <h1>YouTube</h1>
+    <p>Channel: <a href="https://www.youtube.com/@notlousybook" target="_blank" rel="noopener">notlousybook</a></p>
+    <p>Subscribe button:</p>
+    <div>
+      <iframe width="320" height="180" src="https://www.youtube.com/embed?listType=user_uploads&list=notlousybook" frameborder="0" allowfullscreen></iframe>
+    </div>
+    <p>Video gallery and automatic embeds added below. If you want live updates from the channel, provide a YouTube API key; current implementation uses manual thumbnails and embeds.</p>
+    <div id="yt-grid" class="yt-grid"></div>
+    <script>
+      // Set your API key and channel ID in the global scope. Replace below or modify dynamically.
+      window.YT_API_KEY = '';
+      window.YT_CHANNEL_ID = '';
+    </script>
+    <script src="assets/js/youtube-api.js"></script>
+    <script>if(window.YT_API_KEY && window.YT_CHANNEL_ID){initYouTubeGrid();}else{console.info('YouTube API key not set; leave manual list or set keys in the page.');}</script>
+  </main>
+  <footer class="site-footer container">© notlousybook</footer>
+</body>
+</html>
