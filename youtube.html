@@ -18,20 +18,20 @@
     <p>Video gallery and automatic embeds added below. If you want live updates from the channel, provide a YouTube API key; current implementation uses manual thumbnails and embeds.</p>
     <div id="yt-grid" class="yt-grid"></div>
     <script src="assets/js/config-sample.js"></script>
-    <script src="assets/js/config.js"></script>
-    <script src="assets/js/youtube-api.js"></script>
-    <script>
-      if(window.YT_API_KEY && window.YT_CHANNEL_ID){
-        initYouTubeGrid();
-      } else {
-        // fallback to manual embeds if no API key configured
-        const s = document.createElement('script');
-        s.src = 'assets/js/youtube.js';
-        document.body.appendChild(s);
-        console.info('YouTube API key not set; using manual embeds. Copy assets/js/config-sample.js to assets/js/config.js and add keys to enable automatic fetch.');
-      }
-    </script>
+<script>
+(async function(){
+  try{
+    const res = await fetch('assets/js/config.js',{method:'HEAD'});
+    if(res.ok){ var s=document.createElement('script'); s.src='assets/js/config.js'; document.body.appendChild(s); await new Promise(r=>s.onload=r); }
+  }catch(e){}
+  var s2=document.createElement('script'); s2.src='assets/js/youtube-api.js'; document.body.appendChild(s2);
+  s2.onload=function(){
+    if(window.YT_API_KEY && window.YT_CHANNEL_ID){ initYouTubeGrid(); } else { var s3=document.createElement('script'); s3.src='assets/js/youtube.js'; document.body.appendChild(s3); console.info('YouTube API key not set; using manual embeds. Copy assets/js/config-sample.js to assets/js/config.js and add keys to enable automatic fetch.'); }
+  };
+})();
+</script>
   </main>
   <footer class="site-footer container">© notlousybook</footer>
 </body>
 </html>
+
