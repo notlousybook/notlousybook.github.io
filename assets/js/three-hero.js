@@ -59,9 +59,11 @@
 
   function animate(){
     requestAnimationFrame(animate);
-    mesh.rotation.x += 0.005 + mouseY*0.01;
-    mesh.rotation.y += 0.01 + mouseX*0.02;
-    mesh.rotation.z += 0.003;
+    mesh.rotation.x += 0.005 + mouseY*0.015;
+    mesh.rotation.y += 0.01 + mouseX*0.03;
+    mesh.rotation.z += 0.004;
+    // gentle bobbing
+    mesh.position.y = Math.sin(Date.now()*0.0009) * 0.07;
     particles.rotation.y += 0.0007;
     renderer.render(scene, camera);
   }
