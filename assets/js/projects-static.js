@@ -9,11 +9,33 @@
     const thumbMap = { 'DeepSeek-Desktop': 'assets/img/deepseek-thumb.png' };
     if(featured && featEl){
       const thumb = thumbMap[featured.name] || 'assets/img/placeholder-project.png';
-      featEl.innerHTML = `\n        <section class="featured" style="display:flex;gap:18px;align-items:center"> \n          <img src="${thumb}" alt="${featured.name} thumbnail" style="width:160px;height:100px;object-fit:cover;border-radius:10px;flex:0 0 160px">\n          <div>\n            <h2>Featured: <a href="projects/${encodeURIComponent(featured.name)}.html">${featured.name}</a></h2>\n            <p>${featured.description || ''}</p>\n            <p>\n              <a class="cta" href="projects/${encodeURIComponent(featured.name)}.html">View Page</a>\n              <a class="cta" href="${featured.html_url}" target="_blank" rel="noopener" style="margin-left:12px;background:transparent;border:1px solid rgba(255,255,255,0.05);color:var(--muted)">GitHub</a>\n              <a class="cta" href="${featured.html_url}/releases" target="_blank" rel="noopener" style="margin-left:12px;background:transparent;border:1px solid rgba(255,255,255,0.05);color:var(--muted)">Releases</a>\n            </p>\n          </div>\n        </section>\n      `;
+      featEl.innerHTML = `
+        <section class="featured" style="display:flex;gap:18px;align-items:center"> 
+          <img src="${thumb}" alt="${featured.name} thumbnail" style="width:160px;height:100px;object-fit:cover;border-radius:10px;flex:0 0 160px">
+          <div>
+            <h2>Featured: <a href="projects/${encodeURIComponent(featured.name)}.html">${featured.name}</a></h2>
+            <p>${featured.description || ''}</p>
+            <p>
+              <a class="cta" href="projects/${encodeURIComponent(featured.name)}.html">View Page</a>
+              <a class="cta" href="${featured.html_url}" target="_blank" rel="noopener" style="margin-left:12px;background:transparent;border:1px solid rgba(255,255,255,0.05);color:var(--muted)">GitHub</a>
+              <a class="cta" href="${featured.html_url}/releases" target="_blank" rel="noopener" style="margin-left:12px;background:transparent;border:1px solid rgba(255,255,255,0.05);color:var(--muted)">Releases</a>
+            </p>
+          </div>
+        </section>
+      `;
     }
     const others = repos.filter(r => !r.private && (featured? r.id !== featured.id : true));
     if(el){
-      el.innerHTML = others.map(r => `\n        <article class="repo">\n          <img src="${thumbMap[r.name]||'assets/img/placeholder-project.png'}" alt="${r.name} thumbnail">\n          <div>\n            <h3><a href="projects/${encodeURIComponent(r.name)}.html">${r.name}</a></h3>\n            <p>${r.description || ''}</p>\n            <div class="meta">★ ${r.stargazers_count || 0} • ${r.language || ''} • <a href="${r.html_url}" target="_blank" rel="noopener">GitHub</a></div>\n          </div>\n        </article>\n      `).join('');
+      el.innerHTML = others.map(r => `
+        <article class="repo-card" style="display:flex;gap:18px;align-items:center">
+          <img src="${thumbMap[r.name]||'assets/img/placeholder-project.png'}" alt="${r.name} thumbnail" style="width:180px;height:120px;object-fit:cover;border-radius:10px;flex:0 0 180px">
+          <div>
+            <h4><a href="projects/${encodeURIComponent(r.name)}.html">${r.name}</a></h4>
+            <p>${r.description || ''}</p>
+            <div class="meta">★ ${r.stargazers_count || 0} • ${r.language || ''} • <a href="${r.html_url}" target="_blank" rel="noopener">GitHub</a></div>
+          </div>
+        </article>
+      `).join('');
     }
   } catch(e) { console.error(e); if(el) el.textContent='Failed to load projects (see console).'; }
 })();
