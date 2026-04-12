@@ -47,8 +47,9 @@ body{background:radial-gradient(circle at 10% 10%, rgba(12,28,40,0.6), rgba(3,4,
 
 /* Small niceties */
 a.cta.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);padding:10px 18px;border-radius:10px}
-/* Fallback: hide heavy 3D canvas and use decorative gradient shapes for a cleaner layout */
-#hero-canvas{display:none !important}
+/* Desktop: show 3D canvas; hide on small screens */
+#hero-canvas{display:block !important}
 .hero{background:linear-gradient(135deg, rgba(126,249,165,0.03), rgba(125,184,255,0.02));}
 .hero::before{content:'';position:absolute;left:55%;top:-10%;width:50%;height:140%;background:radial-gradient(circle at 30% 30%, rgba(126,249,165,0.12), transparent 40%), radial-gradient(circle at 70% 70%, rgba(125,184,255,0.08), transparent 35%);filter:blur(40px);transform:rotate(18deg);pointer-events:none;}
-@media(max-width:900px){#hero-canvas{display:block} .hero::before{display:none}}
+@media(max-width:900px){#hero-canvas{display:none} .hero::before{display:none}}
+@media (prefers-reduced-motion: reduce){#hero-canvas{display:none !important}}}
