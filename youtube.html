@@ -17,13 +17,20 @@
     </div>
     <p>Video gallery and automatic embeds added below. If you want live updates from the channel, provide a YouTube API key; current implementation uses manual thumbnails and embeds.</p>
     <div id="yt-grid" class="yt-grid"></div>
-    <script>
-      // Set your API key and channel ID in the global scope. Replace below or modify dynamically.
-      window.YT_API_KEY = '';
-      window.YT_CHANNEL_ID = '';
-    </script>
+    <script src="assets/js/config-sample.js"></script>
+    <script src="assets/js/config.js"></script>
     <script src="assets/js/youtube-api.js"></script>
-    <script>if(window.YT_API_KEY && window.YT_CHANNEL_ID){initYouTubeGrid();}else{console.info('YouTube API key not set; leave manual list or set keys in the page.');}</script>
+    <script>
+      if(window.YT_API_KEY && window.YT_CHANNEL_ID){
+        initYouTubeGrid();
+      } else {
+        // fallback to manual embeds if no API key configured
+        const s = document.createElement('script');
+        s.src = 'assets/js/youtube.js';
+        document.body.appendChild(s);
+        console.info('YouTube API key not set; using manual embeds. Copy assets/js/config-sample.js to assets/js/config.js and add keys to enable automatic fetch.');
+      }
+    </script>
   </main>
   <footer class="site-footer container">© notlousybook</footer>
 </body>
