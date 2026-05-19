@@ -8,7 +8,7 @@ const SITE_CONFIG = {
 
   // ─── SITE IDENTITY ──────────────────────────────────────────────
   name: 'notlousybook',
-  tagline: 'dev from pluto',
+  tagline: 'dumb ahh dev from pluto',
 
   // ─── SOCIAL LINKS ───────────────────────────────────────────────
   links: {
@@ -29,9 +29,9 @@ const SITE_CONFIG = {
   // ─── HERO SECTION ───────────────────────────────────────────────
   hero: {
     typewriterTexts: [
-      'self taught from pluto',
-      'building random stuff',
-      'ai & creative coding',
+      'dumb ahh 15 yr old dev',
+      'mainly vibe codes',
+      'from pluto apparently',
       'løµsʏ but chill',
     ],
     badge: {
@@ -42,17 +42,17 @@ const SITE_CONFIG = {
 
   // ─── PROJECT STATS (shown on main page) ────────────────────────
   projectStats: [
-    { target: 35, label: 'repos', icon: 'folder' },
-    { target: 29, label: 'stars', icon: 'star' },
+    { target: 41, label: 'repos', icon: 'folder' },
+    { target: 40, label: 'stars', icon: 'star' },
     { target: 6, label: 'pinned', icon: 'pin' },
     { target: '∞', label: 'ideas', icon: 'infinity' },
   ],
 
   // ─── ABOUT SECTION STATS ────────────────────────────────────────
   aboutStats: [
-    { value: '14', label: 'years old', icon: 'cake' },
+    { value: '15', label: 'years old', icon: 'cake' },
     { value: '∞', label: 'ramen consumed', icon: 'ramen' },
-    { value: '2am', label: 'best coding hour', icon: 'moon' },
+    { value: 'may 13', label: 'birthday', icon: 'cake' },
     { value: '100%', label: 'self-taught', icon: 'book' },
   ],
 
@@ -88,8 +88,8 @@ const SITE_CONFIG = {
 
   // ─── FOOTER ─────────────────────────────────────────────────────
   footer: {
-    tagline: 'self taught dev from pluto',
-    watermark: 'built with code & ramen',
+    tagline: 'dumb ahh dev from pluto',
+    watermark: 'vibe coded with code & ramen',
   },
 
   // ─── COLLAB SECTION ─────────────────────────────────────────────
@@ -165,7 +165,7 @@ const SITE_CONFIG = {
       tagline: 'A cozy desktop wrapper for DeepSeek Chat',
       description: 'Lightweight, feature-packed DeepSeek app built with PyWebView — no Electron bloat.',
       longDescription: 'The most cozy desktop wrapper for DeepSeek Chat — smoother, prettier, and nicer to use than any other client. Built with PyWebView for zero Electron bloat, featuring custom UI polish with the Inter font, 500+ dynamic time-based greetings, smooth fade transitions, typing animations, glassmorphic auto-updater notifications, enhanced Markdown rendering with syntax-highlighted code blocks, and a full logging system. Titlebar matches your Windows theme automatically. The DeepSeek experience, remastered.',
-      stars: 6,
+      stars: 7,
       forks: 2,
       language: 'Python',
       langColor: '#3572A5',

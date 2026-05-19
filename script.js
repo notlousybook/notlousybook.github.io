@@ -1,14 +1,4 @@
-// ╔══════════════════════════════════════════════════════════════════╗
-// ║  NOTLOUSYBOOK PORTFOLIO — MAIN SCRIPT                         ║
-// ║  Standalone vanilla JS — no React, no JSX, no build step       ║
-// ╚══════════════════════════════════════════════════════════════════╝
-
-/* ============================================================
-   1. SVG ICONS SYSTEM
-   ============================================================ */
-
 const ICONS = {
-  // ─── Tech Stack Icons ────────────────────────────────────────
   python: `<g stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
     <path d="M12 2C8 2 8 4 8 4v2h8V4s0-2-4-2z"/>
     <path d="M6 8c-2 0-4 1-4 4s2 4 4 4h3V8H6z"/>
@@ -81,8 +71,6 @@ const ICONS = {
     <path d="M5 10l1 2 2 1-2 1-1 2-1-2-2-1 2-1z"/>
     <path d="M19 14l1 2 2 1-2 1-1 2-1-2-2-1 2-1z"/>
   </g>`,
-
-  // ─── Counter / Stats Icons ───────────────────────────────────
   folder: `<g stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
     <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
   </g>`,
@@ -123,8 +111,6 @@ const ICONS = {
     <line x1="2" y1="12" x2="22" y2="12"/>
     <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
   </g>`,
-
-  // ─── Project Feature Icons ───────────────────────────────────
   seedling: `<g stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none">
     <path d="M12 22v-8"/>
     <path d="M7 10c0-4 3-7 8-7 0 5-3 8-8 8z"/>
@@ -268,8 +254,8 @@ const ICONS = {
 };
 
 function getIcon(name, size) {
-  if (size === undefined) size = 20;
-  const content = ICONS[name];
+  size = size || 20;
+  var content = ICONS[name];
   if (!content) {
     return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
   }
@@ -277,59 +263,55 @@ function getIcon(name, size) {
 }
 
 /* ============================================================
-   2. DOM READY — Populate dynamic content from SITE_CONFIG
+   CONSOLE EASTER EGG
    ============================================================ */
+(function () {
+  var styles = [
+    'font-size: 20px; font-weight: 800; color: oklch(0.78 0.18 175)',
+    'font-size: 13px; color: oklch(0.52 0.025 185)',
+  ];
+  console.log('%cnotlousybook%c\ndumb ahh dev from pluto. vibe coded with code && ramen.', styles[0], styles[1]);
+  console.log('%clike what you see? dm on discordd @notlousybook — dumb ahh 15 yr old dev', 'font-size: 12px; color: oklch(0.52 0.025 185)');
+})();
 
 document.addEventListener('DOMContentLoaded', function () {
 
-  // ─── Populate project-stats-row ────────────────────────────
   var statsRow = document.getElementById('project-stats-row');
   if (statsRow) {
     statsRow.innerHTML = SITE_CONFIG.projectStats.map(function (stat) {
-      return '<div class="glass-card project-counter-card">' +
-        '<div style="font-size:1.25rem;margin-bottom:0.25rem">' + getIcon(stat.icon, 24) + '</div>' +
-        '<span class="project-counter-value gradient-text" data-target="' + stat.target + '">' +
+      return '<div class="stat-card">' +
+        '<div class="stat-icon">' + getIcon(stat.icon, 20) + '</div>' +
+        '<div class="stat-value" data-target="' + stat.target + '">' +
           (typeof stat.target === 'string' ? stat.target : '0') +
-        '</span>' +
-        '<span class="project-counter-label">' + stat.label + '</span>' +
+        '</div>' +
+        '<div class="stat-label">' + stat.label + '</div>' +
       '</div>';
     }).join('');
   }
 
-  // ─── Populate projects-grid ────────────────────────────────
   var projectsGrid = document.getElementById('projects-grid');
   if (projectsGrid) {
     projectsGrid.innerHTML = SITE_CONFIG.projects.map(function (p, i) {
       var statusColors = { Stable: '#00f5d4', Active: '#60a5fa', Alpha: '#fbbf24' };
       var sc = statusColors[p.status] || '#9fb0bb';
-      return '<div class="project-card reveal" style="transition-delay:' + (i * 0.1) + 's" data-slug="' + p.slug + '">' +
-        '<div class="project-card-inner">' +
-          '<div class="project-card-edge-glow" style="background:' + p.gradient + '"></div>' +
-          '<div class="absolute inset-0 rounded-2xl pointer-events-none transition-opacity duration-500" style="background:radial-gradient(350px circle at var(--mouse-x,50%) var(--mouse-y,50%),' + p.accentColor + '10,transparent 60%);opacity:0"></div>' +
-          '<div class="flex items-center justify-between mb-4">' +
-            '<div class="project-icon" style="background:' + p.accentColor + '15;border-color:' + p.accentColor + '25;color:' + p.accentColor + '">' +
-              getIcon(p.icon, 24) +
-            '</div>' +
-            '<span class="text-xs font-medium px-2.5 py-1 rounded-full" style="background:' + sc + '15;color:' + sc + ';border:1px solid ' + sc + '30">' +
-              (p.status === 'Active' ? '\u25CF ' : '') + p.status +
-            '</span>' +
+      return '<div class="project-card reveal" style="transition-delay:' + (i * 0.08) + 's" data-slug="' + p.slug + '">' +
+        '<div class="project-card-header">' +
+          '<div class="project-icon" style="background:' + p.accentColor + '15;color:' + p.accentColor + '">' +
+            getIcon(p.icon, 20) +
           '</div>' +
-          '<h3 class="project-name">' + p.name + '</h3>' +
-          '<p class="project-desc">' + p.description + '</p>' +
-          '<div class="project-meta">' +
-            (p.stars > 0 ? '<div class="project-meta-item"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="color:#fbbf24"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg> ' + p.stars + '</div>' : '') +
-            (p.forks > 0 ? '<div class="project-meta-item"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm0 2.122a2.25 2.25 0 1 0-1.5 0v.878A2.25 2.25 0 0 0 5.75 8.5h1.5v2.128a2.251 2.251 0 1 0 1.5 0V8.5h1.5a2.25 2.25 0 0 0 2.25-2.25v-.878a2.25 2.25 0 1 0-1.5 0v.878a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 5 6.25v-.878Zm3.75 7.378a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm3-8.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z"/></svg> ' + p.forks + '</div>' : '') +
-            (p.language ? '<div class="project-lang"><span class="project-lang-dot" style="background:' + p.langColor + '"></span> ' + p.language + '</div>' : '') +
-          '</div>' +
-          '<div class="project-view-details" style="color:' + p.accentColor + '">' +
-            'View Details <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>' +
-          '</div>' +
+          '<span class="project-status" style="background:' + sc + '15;color:' + sc + '">' + p.status + '</span>' +
+        '</div>' +
+        '<h3 class="project-name">' + p.name + '</h3>' +
+        '<p class="project-desc">' + p.description + '</p>' +
+        '<div class="project-meta">' +
+          (p.stars > 0 ? '<div class="project-meta-item"><svg width="13" height="13" viewBox="0 0 16 16" fill="#fbbf24"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg> ' + p.stars + '</div>' : '') +
+          (p.forks > 0 ? '<div class="project-meta-item"><svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm0 2.122a2.25 2.25 0 1 0-1.5 0v.878A2.25 2.25 0 0 0 5.75 8.5h1.5v2.128a2.251 2.251 0 1 0 1.5 0V8.5h1.5a2.25 2.25 0 0 0 2.25-2.25v-.878a2.25 2.25 0 1 0-1.5 0v.878a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 5 6.25v-.878Zm3.75 7.378a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm3-8.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z"/></svg> ' + p.forks + '</div>' : '') +
+          (p.language ? '<div class="project-lang"><span class="project-lang-dot" style="background:' + p.langColor + '"></span> ' + p.language + '</div>' : '') +
         '</div>' +
       '</div>';
     }).join('');
   }
 
-  // ─── Populate marquee-content ──────────────────────────────
   var marqueeContent = document.getElementById('marquee-content');
   if (marqueeContent) {
     var itemsHtml = SITE_CONFIG.marqueeItems.map(function (item) {
@@ -347,36 +329,33 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // ─── Populate about-stats-grid ─────────────────────────────
   var aboutStatsGrid = document.getElementById('about-stats-grid');
   if (aboutStatsGrid) {
     aboutStatsGrid.innerHTML = SITE_CONFIG.aboutStats.map(function (stat) {
-      return '<div class="glass-card" style="padding:1.5rem;text-align:center">' +
-        '<div style="font-size:1.75rem;margin-bottom:0.5rem">' + getIcon(stat.icon, 28) + '</div>' +
-        '<div class="gradient-text" style="font-size:1.5rem;font-weight:700;font-family:Climate Crisis,serif;margin-bottom:0.25rem">' + stat.value + '</div>' +
-        '<div style="font-size:0.875rem;color:var(--text-muted)">' + stat.label + '</div>' +
+      return '<div class="about-stat-card">' +
+        '<div class="about-stat-icon">' + getIcon(stat.icon, 22) + '</div>' +
+        '<div class="about-stat-value">' + stat.value + '</div>' +
+        '<div class="about-stat-label">' + stat.label + '</div>' +
       '</div>';
     }).join('');
   }
 
-  // ─── Populate tech-grid ────────────────────────────────────
   var techGrid = document.getElementById('tech-grid');
   if (techGrid) {
     techGrid.innerHTML = SITE_CONFIG.techStack.map(function (tech) {
-      return '<div class="tech-badge magnetic-btn">' +
-        '<span class="tech-badge-icon">' + getIcon(tech.icon, 18) + '</span>' +
+      return '<div class="tech-badge">' +
+        '<span class="tech-badge-icon">' + getIcon(tech.icon, 16) + '</span>' +
         tech.name +
       '</div>';
     }).join('');
   }
 
-  // ─── Populate collab-grid ─────────────────────────────────
   var collabGrid = document.getElementById('collab-grid');
   if (collabGrid) {
     collabGrid.innerHTML = SITE_CONFIG.collabCards.map(function (card) {
-      return '<div class="glass-card collab-card">' +
+      return '<div class="collab-card">' +
         '<div class="collab-card-icon" style="color:' + card.iconColor + '">' +
-          getIcon(card.icon, 28) +
+          getIcon(card.icon, 22) +
         '</div>' +
         '<h3 class="collab-card-title">' + card.title + '</h3>' +
         '<p class="collab-card-desc">' + card.desc + '</p>' +
@@ -384,20 +363,15 @@ document.addEventListener('DOMContentLoaded', function () {
     }).join('');
   }
 
-  // ─── Footer year ───────────────────────────────────────────
   var footerYear = document.getElementById('footer-year');
   if (footerYear) footerYear.textContent = new Date().getFullYear();
 
-  // ─── Nav brand text ────────────────────────────────────────
-  var navBrand = document.querySelector('.nav-brand');
-  if (navBrand) navBrand.textContent = SITE_CONFIG.name;
-
 
   /* ============================================================
-     3. THREE.JS PARTICLE GALAXY
+     THREE.JS PARTICLES
      ============================================================ */
 
-  (function initParticleGalaxy() {
+  (function initParticles() {
     var container = document.getElementById('particle-canvas');
     if (!container || typeof THREE === 'undefined') return;
 
@@ -406,9 +380,8 @@ document.addEventListener('DOMContentLoaded', function () {
     var mouseX = 0, mouseY = 0;
     var frameId;
 
-    // Scene setup
     var scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x030311, 0.06);
+    scene.fog = new THREE.FogExp2(0x030311, 0.08);
 
     var camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 100);
     camera.position.z = 8;
@@ -419,41 +392,31 @@ document.addEventListener('DOMContentLoaded', function () {
     renderer.setClearColor(0x000000, 0);
     container.appendChild(renderer.domElement);
 
-    // Main particle system — 600 particles
-    var particleCount = 600;
-    var positions = new Float32Array(particleCount * 3);
-    var colors = new Float32Array(particleCount * 3);
-    var sizes = new Float32Array(particleCount);
-    var velocities = new Float32Array(particleCount * 3);
+    var count = 400;
+    var positions = new Float32Array(count * 3);
+    var colors = new Float32Array(count * 3);
+    var sizes = new Float32Array(count);
+    var velocities = new Float32Array(count * 3);
 
-    var greenColor = new THREE.Color(0x00f5d4);
-    var blueColor = new THREE.Color(0x7b61ff);
-    var whiteTint = new THREE.Color(0xc8d0ff);
+    var accent = new THREE.Color(0x00f5d4);
+    var muted = new THREE.Color(0x2a5a5a);
 
-    for (var i = 0; i < particleCount; i++) {
+    for (var i = 0; i < count; i++) {
       var i3 = i * 3;
-      positions[i3] = (Math.random() - 0.5) * 24;
-      positions[i3 + 1] = (Math.random() - 0.5) * 16;
-      positions[i3 + 2] = (Math.random() - 0.5) * 16;
+      positions[i3] = (Math.random() - 0.5) * 20;
+      positions[i3 + 1] = (Math.random() - 0.5) * 14;
+      positions[i3 + 2] = (Math.random() - 0.5) * 14;
 
-      velocities[i3] = (Math.random() - 0.5) * 0.005;
-      velocities[i3 + 1] = (Math.random() - 0.5) * 0.005;
-      velocities[i3 + 2] = (Math.random() - 0.5) * 0.003;
+      velocities[i3] = (Math.random() - 0.5) * 0.004;
+      velocities[i3 + 1] = (Math.random() - 0.5) * 0.004;
+      velocities[i3 + 2] = (Math.random() - 0.5) * 0.002;
 
-      var colorChoice = Math.random();
-      var color;
-      if (colorChoice < 0.45) {
-        color = greenColor.clone().lerp(whiteTint, Math.random() * 0.3);
-      } else if (colorChoice < 0.8) {
-        color = blueColor.clone().lerp(whiteTint, Math.random() * 0.3);
-      } else {
-        color = whiteTint.clone();
-      }
+      var color = i % 3 === 0 ? accent.clone() : muted.clone().lerp(accent, Math.random() * 0.3);
       colors[i3] = color.r;
       colors[i3 + 1] = color.g;
       colors[i3 + 2] = color.b;
 
-      sizes[i] = Math.random() * 3 + 1;
+      sizes[i] = Math.random() * 2.5 + 0.5;
     }
 
     var geometry = new THREE.BufferGeometry();
@@ -470,28 +433,22 @@ document.addEventListener('DOMContentLoaded', function () {
         'attribute float size;',
         'attribute vec3 color;',
         'varying vec3 vColor;',
-        'varying float vAlpha;',
-        'uniform float uTime;',
         'uniform float uPixelRatio;',
         'void main() {',
         '  vColor = color;',
         '  vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);',
-        '  float distFromCenter = length(position.xy) / 12.0;',
-        '  vAlpha = 1.0 - smoothstep(0.0, 1.0, distFromCenter) * 0.5;',
-        '  gl_PointSize = size * uPixelRatio * (6.0 / -mvPosition.z);',
+        '  gl_PointSize = size * uPixelRatio * (5.0 / -mvPosition.z);',
         '  gl_PointSize = max(gl_PointSize, 1.0);',
         '  gl_Position = projectionMatrix * mvPosition;',
         '}'
       ].join('\n'),
       fragmentShader: [
         'varying vec3 vColor;',
-        'varying float vAlpha;',
         'void main() {',
         '  float d = length(gl_PointCoord - vec2(0.5));',
         '  if (d > 0.5) discard;',
         '  float glow = 1.0 - smoothstep(0.0, 0.5, d);',
-        '  glow = pow(glow, 1.5);',
-        '  gl_FragColor = vec4(vColor, glow * vAlpha * 0.7);',
+        '  gl_FragColor = vec4(vColor, glow * 0.5);',
         '}'
       ].join('\n'),
       transparent: true,
@@ -502,85 +459,21 @@ document.addEventListener('DOMContentLoaded', function () {
     var particles = new THREE.Points(geometry, material);
     scene.add(particles);
 
-    // Star particles — 40 larger twinkling ones
-    var starCount = 40;
-    var starPositions = new Float32Array(starCount * 3);
-    var starColors = new Float32Array(starCount * 3);
-    var starSizes = new Float32Array(starCount);
-
-    for (var j = 0; j < starCount; j++) {
-      var j3 = j * 3;
-      starPositions[j3] = (Math.random() - 0.5) * 20;
-      starPositions[j3 + 1] = (Math.random() - 0.5) * 12;
-      starPositions[j3 + 2] = (Math.random() - 0.5) * 10;
-      starColors[j3] = 0.9;
-      starColors[j3 + 1] = 0.97;
-      starColors[j3 + 2] = 0.95;
-      starSizes[j] = Math.random() * 6 + 4;
-    }
-
-    var starGeometry = new THREE.BufferGeometry();
-    starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-    starGeometry.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
-    starGeometry.setAttribute('size', new THREE.BufferAttribute(starSizes, 1));
-
-    var starMaterial = new THREE.ShaderMaterial({
-      uniforms: {
-        uTime: { value: 0 },
-        uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
-      },
-      vertexShader: [
-        'attribute float size;',
-        'attribute vec3 color;',
-        'varying vec3 vColor;',
-        'uniform float uPixelRatio;',
-        'void main() {',
-        '  vColor = color;',
-        '  vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);',
-        '  gl_PointSize = size * uPixelRatio * (6.0 / -mvPosition.z);',
-        '  gl_PointSize = max(gl_PointSize, 1.5);',
-        '  gl_Position = projectionMatrix * mvPosition;',
-        '}'
-      ].join('\n'),
-      fragmentShader: [
-        'varying vec3 vColor;',
-        'uniform float uTime;',
-        'void main() {',
-        '  float d = length(gl_PointCoord - vec2(0.5));',
-        '  if (d > 0.5) discard;',
-        '  float glow = 1.0 - smoothstep(0.0, 0.5, d);',
-        '  glow = pow(glow, 2.0);',
-        '  float twinkle = sin(uTime * 3.0 + gl_PointCoord.x * 20.0) * 0.3 + 0.7;',
-        '  gl_FragColor = vec4(vColor, glow * 0.5 * twinkle);',
-        '}'
-      ].join('\n'),
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    });
-
-    var stars = new THREE.Points(starGeometry, starMaterial);
-    scene.add(stars);
-
-    // Mouse handler
     container.addEventListener('mousemove', function (e) {
       var rect = container.getBoundingClientRect();
       mouseX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       mouseY = -((e.clientY - rect.top) / rect.height) * 2 + 1;
     });
 
-    // Animation loop
     function animate() {
       var posArr = geometry.attributes.position.array;
-      var colArr = geometry.attributes.color.array;
       var time = Date.now() * 0.0003;
 
       for (var k = 0; k < posArr.length; k += 3) {
-        posArr[k] += velocities[k] + Math.sin(time + posArr[k + 1] * 0.5) * 0.003;
-        posArr[k + 1] += velocities[k + 1] + Math.cos(time + posArr[k] * 0.5) * 0.003;
-        posArr[k + 2] += velocities[k + 2] + Math.sin(time + posArr[k] * 0.3) * 0.002;
+        posArr[k] += velocities[k] + Math.sin(time + posArr[k + 1] * 0.5) * 0.002;
+        posArr[k + 1] += velocities[k + 1] + Math.cos(time + posArr[k] * 0.5) * 0.002;
+        posArr[k + 2] += velocities[k + 2] + Math.sin(time + posArr[k] * 0.3) * 0.001;
 
-        // Mouse repulsion
         var dx = posArr[k] - mouseX * 5;
         var dy = posArr[k + 1] - mouseY * 5;
         var dist = Math.sqrt(dx * dx + dy * dy);
@@ -590,37 +483,23 @@ document.addEventListener('DOMContentLoaded', function () {
           posArr[k + 1] += dy * force;
         }
 
-        // Wrap boundaries
-        if (posArr[k] > 12) posArr[k] = -12;
-        if (posArr[k] < -12) posArr[k] = 12;
-        if (posArr[k + 1] > 8) posArr[k + 1] = -8;
-        if (posArr[k + 1] < -8) posArr[k + 1] = 8;
-
-        // Subtle color pulsing
-        var colorShift = Math.sin(time * 2 + k * 0.1) * 0.15;
-        colArr[k] = 0.0 + colorShift * 0.3;
-        colArr[k + 1] = 0.96 + colorShift * 0.1;
-        colArr[k + 2] = 0.83 + colorShift * 0.5;
+        if (posArr[k] > 10) posArr[k] = -10;
+        if (posArr[k] < -10) posArr[k] = 10;
+        if (posArr[k + 1] > 7) posArr[k + 1] = -7;
+        if (posArr[k + 1] < -7) posArr[k + 1] = 7;
       }
 
       geometry.attributes.position.needsUpdate = true;
-      geometry.attributes.color.needsUpdate = true;
+      particles.rotation.y = time * 0.04;
+      particles.rotation.x = Math.sin(time * 0.3) * 0.015;
 
-      // Slow rotation
-      particles.rotation.y = time * 0.05;
-      particles.rotation.x = Math.sin(time * 0.3) * 0.02;
-
-      var shaderTime = Date.now() * 0.001;
-      material.uniforms.uTime.value = shaderTime;
-      starMaterial.uniforms.uTime.value = shaderTime;
-
+      material.uniforms.uTime.value = Date.now() * 0.001;
       renderer.render(scene, camera);
       frameId = requestAnimationFrame(animate);
     }
 
     frameId = requestAnimationFrame(animate);
 
-    // Resize handler
     window.addEventListener('resize', function () {
       var w = container.clientWidth;
       var h = container.clientHeight;
@@ -633,89 +512,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   /* ============================================================
-     4. CUSTOM CURSOR + TRAIL
-     ============================================================ */
-
-  (function initCursor() {
-    if (window.innerWidth < 768) return;
-
-    var cursor = document.createElement('div');
-    cursor.className = 'custom-cursor';
-    document.body.appendChild(cursor);
-
-    var dot = document.createElement('div');
-    dot.className = 'cursor-dot';
-    document.body.appendChild(dot);
-
-    var trailCount = 8;
-    var trails = [];
-    for (var t = 0; t < trailCount; t++) {
-      var trail = document.createElement('div');
-      trail.className = 'cursor-trail';
-      trail.style.opacity = String(0.4 - t * 0.05);
-      trail.style.width = (4 - t * 0.3) + 'px';
-      trail.style.height = (4 - t * 0.3) + 'px';
-      document.body.appendChild(trail);
-      trails.push(trail);
-    }
-
-    var mx = 0, my = 0, cx = 0, cy = 0, dx = 0, dy = 0;
-
-    document.addEventListener('mousemove', function (e) {
-      mx = e.clientX;
-      my = e.clientY;
-      for (var i = 0; i < trails.length; i++) {
-        (function (idx, trailEl) {
-          setTimeout(function () {
-            trailEl.style.left = mx + 'px';
-            trailEl.style.top = my + 'px';
-            trailEl.style.transform = 'translate(-50%, -50%)';
-          }, idx * 30);
-        })(i, trails[i]);
-      }
-    });
-
-    document.addEventListener('mouseover', function (e) {
-      if (e.target.closest('a, button, [role="button"], .project-card, .btn-primary, .btn-secondary, .tech-badge')) {
-        cursor.classList.add('hovering');
-      }
-    });
-    document.addEventListener('mouseout', function (e) {
-      cursor.classList.remove('hovering');
-    });
-
-    function animCursor() {
-      cx += (mx - cx) * 0.12;
-      cy += (my - cy) * 0.12;
-      dx += (mx - dx) * 0.25;
-      dy += (my - dy) * 0.25;
-      cursor.style.left = cx + 'px';
-      cursor.style.top = cy + 'px';
-      dot.style.left = dx + 'px';
-      dot.style.top = dy + 'px';
-      requestAnimationFrame(animCursor);
-    }
-    animCursor();
-  })();
-
-
-  /* ============================================================
-     5. TYPEWRITER EFFECT
+     TYPEWRITER
      ============================================================ */
 
   (function initTypewriter() {
     var el = document.getElementById('typewriter-text');
     if (!el) return;
     var texts = SITE_CONFIG.hero.typewriterTexts;
-    var textIdx = 0, charIdx = 0, isDeleting = false;
+    var idx = 0, charIdx = 0, deleting = false;
 
     function tick() {
-      var current = texts[textIdx];
-      if (!isDeleting) {
+      var current = texts[idx];
+      if (!deleting) {
         charIdx++;
         el.textContent = current.substring(0, charIdx);
         if (charIdx === current.length) {
-          setTimeout(function () { isDeleting = true; tick(); }, 2000);
+          setTimeout(function () { deleting = true; tick(); }, 2000);
           return;
         }
         setTimeout(tick, 80);
@@ -723,8 +535,8 @@ document.addEventListener('DOMContentLoaded', function () {
         charIdx--;
         el.textContent = current.substring(0, charIdx);
         if (charIdx === 0) {
-          isDeleting = false;
-          textIdx = (textIdx + 1) % texts.length;
+          deleting = false;
+          idx = (idx + 1) % texts.length;
           setTimeout(tick, 80);
           return;
         }
@@ -736,55 +548,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   /* ============================================================
-     6. SCROLL REVEAL
+     SCROLL REVEAL
      ============================================================ */
 
   (function initScrollReveal() {
-    function setupReveal() {
-      var observer = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
-        });
-      }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-
-      document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .stagger-children')
-        .forEach(function (el) { observer.observe(el); });
-      return observer;
-    }
-    setupReveal();
-
-    // Parallax on scroll
-    window.addEventListener('scroll', function () {
-      var scrollY = window.scrollY;
-      var vh = window.innerHeight;
-
-      document.querySelectorAll('[data-parallax]').forEach(function (el) {
-        var speed = parseFloat(el.dataset.parallax || '0.1');
-        var rect = el.getBoundingClientRect();
-        var offset = rect.top * speed;
-        el.style.transform = 'translateY(' + offset + 'px)';
-      });
-
-      document.querySelectorAll('.deco-glow').forEach(function (el) {
-        var rect = el.getBoundingClientRect();
-        var progress = (vh - rect.top) / (vh + rect.height);
-        if (progress > 0 && progress < 2) {
-          var y = (progress - 0.5) * 40;
-          el.style.transform = 'translateY(' + y + 'px)';
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
         }
       });
-    }, { passive: true });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .stagger-children')
+      .forEach(function (el) { observer.observe(el); });
   })();
 
 
   /* ============================================================
-     7. ANIMATED COUNTERS
+     COUNTERS
      ============================================================ */
 
   (function initCounters() {
-    var counters = document.querySelectorAll('.project-counter-value');
+    var counters = document.querySelectorAll('.stat-value[data-target]');
     counters.forEach(function (el) {
       var targetStr = el.getAttribute('data-target');
       if (!targetStr) return;
@@ -795,8 +581,8 @@ document.addEventListener('DOMContentLoaded', function () {
           if (entry.isIntersecting && !counted) {
             counted = true;
             var target = Number(targetStr);
-            if (isNaN(target)) return; // string target like '∞' is already displayed
-            var duration = 1500;
+            if (isNaN(target)) return;
+            var duration = 1200;
             var start = performance.now();
 
             function anim(now) {
@@ -815,329 +601,145 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   /* ============================================================
-     8. PROJECT CARDS — 3D TILT
+     PROJECT CARD CLICK
      ============================================================ */
 
-  (function initCardTilt() {
-    document.addEventListener('mousemove', function (e) {
-      var card = e.target.closest('.project-card');
-      if (!card) return;
-      var inner = card.querySelector('.project-card-inner');
-      if (!inner) return;
-
-      var rect = inner.getBoundingClientRect();
-      var x = e.clientX - rect.left;
-      var y = e.clientY - rect.top;
-      var centerX = rect.width / 2;
-      var centerY = rect.height / 2;
-
-      var rotateX = ((y - centerY) / centerY) * -10;
-      var rotateY = ((x - centerX) / centerX) * 10;
-
-      inner.style.transform = 'perspective(1000px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) scale3d(1.03, 1.03, 1.03)';
-      inner.style.setProperty('--mouse-x', ((x / rect.width) * 100) + '%');
-      inner.style.setProperty('--mouse-y', ((y / rect.height) * 100) + '%');
-
-      // Show glow overlay
-      var glowDiv = inner.querySelector('.absolute.inset-0.rounded-2xl');
-      if (glowDiv) glowDiv.style.opacity = '1';
-
-      // Show view details
-      var viewDetails = inner.querySelector('.project-view-details');
-      if (viewDetails) {
-        viewDetails.style.opacity = '1';
-        viewDetails.style.transform = 'translateY(0)';
-      }
-    });
-
-    document.addEventListener('mouseleave', function (e) {
-      var card = e.target.closest('.project-card');
-      if (!card) return;
-      var inner = card.querySelector('.project-card-inner');
-      if (!inner) return;
-      inner.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
-
-      var glowDiv = inner.querySelector('.absolute.inset-0.rounded-2xl');
-      if (glowDiv) glowDiv.style.opacity = '0';
-
-      var viewDetails = inner.querySelector('.project-view-details');
-      if (viewDetails) {
-        viewDetails.style.opacity = '0';
-        viewDetails.style.transform = 'translateY(8px)';
-      }
-    }, true);
-
-    // Click handler for project cards
-    document.addEventListener('click', function (e) {
-      var card = e.target.closest('.project-card');
-      if (card && card.dataset.slug) {
-        showProjectDetail(card.dataset.slug);
-      }
-    });
-  })();
+  document.addEventListener('click', function (e) {
+    var card = e.target.closest('.project-card');
+    if (card && card.dataset.slug) {
+      showProjectDetail(card.dataset.slug);
+    }
+  });
 
 
   /* ============================================================
-     9. PROJECT DETAIL PAGES (SPA routing)
+     PROJECT DETAIL PAGE
      ============================================================ */
 
   var mainContent = document.getElementById('main-content');
   var projectDetailPage = document.getElementById('project-detail-page');
   var isProjectDetailActive = false;
 
-  window.showProjectDetail = function showProjectDetail(slug) {
+  window.showProjectDetail = function (slug) {
     var project = SITE_CONFIG.projects.find(function (p) { return p.slug === slug; });
     if (!project) return;
 
-    // Page transition
+    if (document.startViewTransition) {
+      document.startViewTransition(function () {
+        mainContent.style.display = 'none';
+        projectDetailPage.style.display = 'block';
+        isProjectDetailActive = true;
+        renderProjectDetail(project);
+        window.scrollTo({ top: 0 });
+      });
+      return;
+    }
+
     var overlay = document.getElementById('page-transition-overlay');
     if (overlay) overlay.classList.add('active');
 
     setTimeout(function () {
       mainContent.style.display = 'none';
       projectDetailPage.style.display = 'block';
-      projectDetailPage.style.opacity = '1';
       isProjectDetailActive = true;
+      renderProjectDetail(project);
 
       window.scrollTo({ top: 0 });
 
-      var statusColors = {
-        Stable: { bg: 'rgba(126, 249, 165, 0.15)', text: '#7ef9a5' },
-        Active: { bg: 'rgba(125, 184, 255, 0.15)', text: '#7db8ff' },
-        Alpha: { bg: 'rgba(251, 191, 36, 0.15)', text: '#fbbf24' },
-      };
-      var sc = statusColors[project.status] || { bg: 'rgba(159, 176, 187, 0.15)', text: '#9fb0bb' };
-      var statusIcon = project.status === 'Active' ? '\u25CF ' : project.status === 'Stable' ? '\u25C6 ' : '\u25C8 ';
+      if (overlay) setTimeout(function () { overlay.classList.remove('active'); }, 100);
+    }, 400);
+  };
 
-      // Build stats items
-      var statsItems = [
-        { label: 'Stars', value: project.stars.toString(), icon: 'star' },
-        { label: 'Forks', value: project.forks.toString(), icon: 'link' },
-        { label: 'Language', value: project.language, icon: 'globe' },
-        { label: 'Status', value: project.status, icon: project.status === 'Stable' ? 'check' : project.status === 'Active' ? 'fire' : 'build' },
-      ];
-      if (project.license) {
-        statsItems.push({ label: 'License', value: project.license, icon: 'package' });
-      }
+  function renderProjectDetail(project) {
+    var statusColors = {
+      Stable: { bg: 'rgba(0,245,212,0.12)', text: '#00f5d4' },
+      Active: { bg: 'rgba(96,165,250,0.12)', text: '#60a5fa' },
+      Alpha: { bg: 'rgba(251,191,36,0.12)', text: '#fbbf24' },
+    };
+    var sc = statusColors[project.status] || { bg: 'rgba(159,176,187,0.12)', text: '#9fb0bb' };
 
-      // Build install commands HTML
-      var installCmdsHtml = project.installCommands.map(function (cmd) {
-        if (cmd.startsWith('#')) {
-          return '<span class="code-comment">' + cmd + '</span>\n';
-        }
-        return '<span><span class="code-prompt">$ </span><span class="code-command">' + cmd + '</span></span>\n';
-      }).join('');
-
-      // Build usage commands HTML
-      var usageHtml = project.usageCommands.map(function (uc) {
-        return '<div class="glass-card project-usage-item">' +
-          '<div class="project-usage-cmd"><span class="code-prompt">$ </span><code>' + uc.command + '</code></div>' +
-          '<p class="project-usage-desc">' + uc.description + '</p>' +
-        '</div>';
-      }).join('');
-
-      // Build features HTML
-      var featuresHtml = project.features.map(function (f) {
-        return '<div class="glass-card project-feature-card">' +
-          '<div class="project-feature-icon" style="background:' + project.accentColor + '15;border-color:' + project.accentColor + '25;color:' + project.accentColor + '">' +
-            getIcon(f.icon, 22) +
+    var featuresHtml = project.features.map(function (f) {
+        return '<div class="project-feature-card">' +
+          '<div class="project-feature-icon" style="background:' + project.accentColor + '15;color:' + project.accentColor + '">' +
+            getIcon(f.icon, 18) +
           '</div>' +
           '<h4 class="project-feature-title">' + f.title + '</h4>' +
           '<p class="project-feature-desc">' + f.description + '</p>' +
         '</div>';
       }).join('');
 
-      // Build stats grid HTML
-      var statsHtml = statsItems.map(function (s) {
-        return '<div class="glass-card project-stat-card">' +
-          '<span class="project-stat-icon">' + getIcon(s.icon, 20) + '</span>' +
-          '<span class="project-stat-value" style="color:' + project.accentColor + '">' + s.value + '</span>' +
-          '<span class="project-stat-label">' + s.label + '</span>' +
+      var installCmdsHtml = project.installCommands.map(function (cmd) {
+        return cmd.startsWith('#')
+          ? '<span style="color:var(--text-muted)">' + cmd + '</span>\n'
+          : '<span>$ ' + cmd + '</span>\n';
+      }).join('');
+
+      var usageHtml = project.usageCommands.map(function (uc) {
+        return '<div class="project-feature-card">' +
+          '<div style="font-family:monospace;font-size:0.9rem;color:var(--accent);margin-bottom:4px">$ ' + uc.command + '</div>' +
+          '<p style="font-size:0.85rem;color:var(--text-muted)">' + uc.description + '</p>' +
         '</div>';
       }).join('');
 
-      // Build tags HTML
-      var tagsHtml = project.tags.map(function (tag) {
-        return '<span class="project-tag" style="border-color:' + project.accentColor + '30;color:' + project.accentColor + '">' + tag + '</span>';
-      }).join('');
-
-      // Build tech stack badges
-      var techBadges = project.techStack.map(function (tech) {
-        return '<div class="tech-badge magnetic-btn" style="border-color:' + project.accentColor + '20">' +
-          '<span class="tech-badge-icon" style="color:' + project.accentColor + '">\u25C6</span>' +
-          tech +
+      var statsHtml = [
+        { label: 'Stars', value: project.stars },
+        { label: 'Forks', value: project.forks },
+        { label: 'Language', value: project.language },
+        { label: 'Status', value: project.status },
+      ].map(function (s) {
+        return '<div class="project-detail-meta-item">' +
+          '<div class="project-detail-meta-value" style="color:' + project.accentColor + '">' + s.value + '</div>' +
+          '<div class="project-detail-meta-label">' + s.label + '</div>' +
         '</div>';
       }).join('');
 
-      // Populate hero
-      document.getElementById('project-detail-hero').innerHTML =
-        '<section class="project-hero-section" style="position:relative;min-height:70vh;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at 50% 30%,#0a0a1a 0%,#030311 50%,#020210 100%)">' +
-          '<div class="deco-glow" style="background:' + project.accentColor + ';opacity:0.12;width:600px;height:600px;top:-10%;right:-10%;position:absolute;filter:blur(100px);pointer-events:none;animation:pulse-glow 8s ease-in-out infinite"></div>' +
-          '<div class="deco-glow" style="background:' + project.accentColor + ';opacity:0.08;width:400px;height:400px;bottom:0;left:-5%;position:absolute;filter:blur(100px);pointer-events:none;animation:pulse-glow 6s ease-in-out infinite 2s"></div>' +
-          '<div class="grid-pattern" style="position:absolute;inset:0;pointer-events:none;opacity:0.02;background-image:linear-gradient(rgba(0,245,212,0.5) 1px,transparent 1px),linear-gradient(90deg,rgba(0,245,212,0.5) 1px,transparent 1px);background-size:60px 60px"></div>' +
-          '<div class="project-hero-content" style="position:relative;z-index:10;text-align:center;max-width:800px;padding:0 2rem;padding-top:5rem">' +
-            '<button class="project-back-btn magnetic-btn" onclick="hideProjectDetail()" style="position:absolute;top:0;left:0;display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--glass-bg);backdrop-filter:blur(12px);border:1px solid var(--glass-border);border-radius:var(--radius-btn);color:var(--text-primary);font-size:0.9rem;cursor:pointer;font-family:inherit;transition:all 0.3s ease">' +
-              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back to Home' +
-            '</button>' +
-            '<div class="project-hero-icon-wrapper" style="position:relative;display:inline-block;margin-bottom:1.5rem">' +
-              '<div class="project-hero-icon-ring" style="position:absolute;inset:-8px;border-radius:50%;border:2px solid transparent;border-top-color:' + project.accentColor + ';border-right-color:' + project.accentColor + ';animation:spin 12s linear infinite"></div>' +
-              '<div class="project-hero-icon-inner" style="width:96px;height:96px;border-radius:50%;background:var(--glass-bg);backdrop-filter:blur(20px);border:1px solid var(--glass-border);display:flex;align-items:center;justify-content:center;color:' + project.accentColor + '">' +
-                getIcon(project.icon, 48) +
-              '</div>' +
-              '<div class="project-hero-icon-glow" style="position:absolute;inset:-20px;border-radius:50%;background:radial-gradient(circle,' + project.accentColor + '22,transparent 70%);animation:pulse-glow 4s ease-in-out infinite;pointer-events:none"></div>' +
-            '</div>' +
-            '<h1 class="project-hero-title" style="font-family:Climate Crisis,DM Serif Display,serif;font-size:clamp(2.5rem,6vw,4.5rem);font-weight:400;line-height:1.1;margin-bottom:1rem">' +
-              '<span style="background:' + project.gradient + ';-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">' + project.name + '</span>' +
-            '</h1>' +
-            '<p class="project-hero-tagline" style="font-size:1.2rem;color:var(--text-muted);margin-bottom:1.5rem">' + project.tagline + '</p>' +
-            '<div class="project-hero-meta" style="display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:2rem">' +
-              '<span class="project-status-badge" style="background:' + sc.bg + ';color:' + sc.text + ';border:1px solid ' + sc.text + '33;padding:6px 16px;border-radius:100px;font-size:0.8rem;font-weight:500">' +
-                statusIcon + project.status +
-              '</span>' +
-              (project.stars > 0 ? '<span class="project-meta-pill" style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:100px;font-size:0.8rem;color:var(--text-muted)"><svg width="14" height="14" viewBox="0 0 16 16" fill="#fbbf24"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"/></svg> ' + project.stars + '</span>' : '') +
-              (project.forks > 0 ? '<span class="project-meta-pill" style="display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:100px;font-size:0.8rem;color:var(--text-muted)"><svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm0 2.122a2.25 2.25 0 1 0-1.5 0v.878A2.25 2.25 0 0 0 5.75 8.5h1.5v2.128a2.251 2.251 0 1 0 1.5 0V8.5h1.5a2.25 2.25 0 0 0 2.25-2.25v-.878a2.25 2.25 0 1 0-1.5 0v.878a.75.75 0 0 1-.75.75h-4.5A.75.75 0 0 1 5 6.25v-.878Zm3.75 7.378a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm3-8.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z"/></svg> ' + project.forks + '</span>' : '') +
-              '<span class="project-meta-pill" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:100px;font-size:0.8rem;color:var(--text-muted)">' +
-                '<span class="project-lang-dot" style="width:10px;height:10px;border-radius:50%;background:' + project.langColor + ';display:inline-block"></span> ' + project.language +
-              '</span>' +
-            '</div>' +
-            '<div class="project-hero-buttons" style="margin-bottom:2rem">' +
-              '<a href="' + project.url + '" target="_blank" rel="noopener noreferrer" class="btn-primary magnetic-btn" style="background:linear-gradient(135deg,' + project.accentColor + ',' + project.accentColor + 'cc)">' +
-                '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>' +
-                ' View on GitHub' +
-              '</a>' +
-            '</div>' +
-            '<div style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;animation:float 3s ease-in-out infinite">' +
-              '<span style="color:var(--text-muted);font-size:0.8rem">explore</span>' +
-              '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="' + project.accentColor + '" stroke-width="2" opacity="0.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg>' +
-            '</div>' +
-          '</div>' +
-        '</section>';
+      document.getElementById('project-detail-content').innerHTML =
+        '<button class="project-back-btn" onclick="hideProjectDetail()">' +
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back' +
+        '</button>' +
+        '<h1 class="project-detail-title">' + project.name + '</h1>' +
+        '<p class="project-detail-tagline">' + project.tagline + '</p>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:24px">' +
+          '<span class="project-status" style="background:' + sc.bg + ';color:' + sc.text + '">' + project.status + '</span>' +
+        '</div>' +
+        '<div class="project-detail-meta">' + statsHtml + '</div>' +
+        '<div style="margin-top:32px">' +
+          '<a href="' + project.url + '" target="_blank" rel="noopener noreferrer" class="btn-primary">' +
+            '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg> View on GitHub' +
+          '</a>' +
+        '</div>';
 
-      // Populate overview
       document.getElementById('project-detail-overview').innerHTML =
-        '<div class="section-divider"></div>' +
-        '<section style="background:linear-gradient(180deg,#040617 0%,#060918 100%)">' +
-          '<div class="section-container">' +
-            '<div class="project-overview-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start">' +
-              '<div class="glass-card project-overview-card reveal-left" style="padding:2.5rem">' +
-                '<h3 class="project-section-heading" style="font-family:Climate Crisis,serif;font-size:1.5rem;margin-bottom:1.5rem"><span style="color:' + project.accentColor + '">\u25B8</span> Overview</h3>' +
-                '<p class="project-overview-text" style="color:var(--text-muted);line-height:1.8;font-size:1rem;margin-bottom:1.5rem">' + project.longDescription + '</p>' +
-                '<div class="project-tags-row" style="display:flex;flex-wrap:wrap;gap:8px">' + tagsHtml + '</div>' +
-              '</div>' +
-              '<div class="reveal-right">' +
-                '<div class="project-stats-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">' + statsHtml + '</div>' +
-              '</div>' +
-            '</div>' +
-          '</div>' +
-        '</section>';
+        '<p style="font-size:1rem;color:var(--text-secondary);line-height:1.8">' + project.longDescription + '</p>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:16px">' +
+          project.tags.map(function (tag) {
+            return '<span class="tech-badge" style="font-size:0.78rem;padding:4px 12px;cursor:default">' + tag + '</span>';
+          }).join('') +
+        '</div>';
 
-      // Populate features
       document.getElementById('project-detail-features').innerHTML =
-        '<div class="section-divider"></div>' +
-        '<section style="background:linear-gradient(180deg,#060918 0%,#040617 100%)">' +
-          '<div class="section-container">' +
-            '<div class="section-header reveal">' +
-              '<div class="section-label" style="color:' + project.accentColor + '"><span style="color:' + project.accentColor + '">\u25B8</span> features</div>' +
-              '<h2 class="section-title"><span style="background:' + project.gradient + ';-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">What Makes It Special</span></h2>' +
-            '</div>' +
-            '<div class="project-features-grid stagger-children" style="display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem">' + featuresHtml + '</div>' +
-          '</div>' +
-        '</section>';
+        '<h3>Features</h3>' +
+        '<div class="project-features-grid">' + featuresHtml + '</div>';
 
-      // Populate installation
       document.getElementById('project-detail-installation').innerHTML =
-        '<div class="section-divider"></div>' +
-        '<section style="background:linear-gradient(180deg,#040617 0%,#050a18 100%)">' +
-          '<div class="section-container">' +
-            '<div class="section-header reveal">' +
-              '<div class="section-label" style="color:' + project.accentColor + '"><span style="color:' + project.accentColor + '">\u25B8</span> installation</div>' +
-              '<h2 class="section-title"><span class="gradient-text">Get Started</span></h2>' +
-            '</div>' +
-            '<div class="reveal">' +
-              '<div class="code-block-wrapper" style="background:var(--bg-mid);border:1px solid var(--glass-border);border-radius:var(--radius-card);overflow:hidden">' +
-                '<div class="code-block-header" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,0.03);border-bottom:1px solid var(--glass-border)">' +
-                  '<div class="code-block-dots" style="display:flex;gap:6px"><span style="width:12px;height:12px;border-radius:50%;background:#ff5f57"></span><span style="width:12px;height:12px;border-radius:50%;background:#febc2e"></span><span style="width:12px;height:12px;border-radius:50%;background:#28c840"></span></div>' +
-                  '<span class="code-block-title" style="font-size:0.8rem;color:var(--text-muted)">Terminal</span>' +
-                  '<button class="code-copy-btn magnetic-btn" onclick="navigator.clipboard.writeText(\'' + project.installCommands.filter(function(c){return !c.startsWith('#')}).join('\\n').replace(/'/g, "\\'") + '\')" style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;color:var(--text-muted);font-size:0.75rem;cursor:pointer;font-family:inherit;transition:all 0.3s ease">' +
-                    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy' +
-                  '</button>' +
-                '</div>' +
-                '<pre class="code-block-body" style="padding:1.25rem;overflow-x:auto;margin:0"><code style="color:var(--text-primary);font-family:monospace;font-size:0.9rem;line-height:1.8">' + installCmdsHtml + '</code></pre>' +
-              '</div>' +
-            '</div>' +
-          '</div>' +
-        '</section>';
+        '<h3>Installation</h3>' +
+        '<div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;font-family:monospace;font-size:0.9rem;line-height:1.8;overflow-x:auto"><pre style="margin:0;color:var(--text-primary)">' + installCmdsHtml + '</pre></div>';
 
-      // Populate usage
-      var usageSection = '';
-      if (project.usageCommands.length > 0) {
-        usageSection =
-          '<div class="section-divider"></div>' +
-          '<section style="background:linear-gradient(180deg,#050a18 0%,#040617 100%)">' +
-            '<div class="section-container">' +
-              '<div class="section-header reveal">' +
-                '<div class="section-label" style="color:' + project.accentColor + '"><span style="color:' + project.accentColor + '">\u25B8</span> usage</div>' +
-                '<h2 class="section-title"><span class="gradient-text-reverse">Commands</span></h2>' +
-              '</div>' +
-              '<div class="project-usage-list stagger-children" style="display:grid;grid-template-columns:1fr;gap:1rem;max-width:700px;margin:0 auto">' + usageHtml + '</div>' +
-            '</div>' +
-          '</section>';
-      }
-      document.getElementById('project-detail-usage').innerHTML = usageSection;
+      document.getElementById('project-detail-usage').innerHTML =
+        (usageHtml ? '<h3>Usage</h3><div style="display:grid;gap:12px">' + usageHtml + '</div>' : '');
+  }
 
-      // Populate tech stack
-      document.getElementById('project-detail-techstack').innerHTML =
-        '<div class="section-divider"></div>' +
-        '<section style="background:linear-gradient(180deg,#040617 0%,#060918 100%)">' +
-          '<div class="section-container">' +
-            '<div class="section-header reveal">' +
-              '<div class="section-label" style="color:' + project.accentColor + '"><span style="color:' + project.accentColor + '">\u25B8</span> tech stack</div>' +
-              '<h2 class="section-title"><span class="gradient-text">Built With</span></h2>' +
-            '</div>' +
-            '<div class="tech-grid stagger-children" style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;max-width:800px;margin:0 auto">' + techBadges + '</div>' +
-          '</div>' +
-        '</section>';
+  window.hideProjectDetail = function () {
+    if (document.startViewTransition) {
+      document.startViewTransition(function () {
+        projectDetailPage.style.display = 'none';
+        mainContent.style.display = 'block';
+        isProjectDetailActive = false;
+        window.scrollTo({ top: 0 });
+      });
+      return;
+    }
 
-      // Populate footer
-      document.getElementById('project-detail-footer').innerHTML =
-        '<div class="section-divider"></div>' +
-        '<footer class="footer-section" style="border-top:1px solid var(--glass-border);background:rgba(3,3,17,0.95)">' +
-          '<div style="max-width:80rem;margin:0 auto;padding:4rem 1.5rem;text-align:center">' +
-            '<div style="font-family:Climate Crisis,serif;font-size:1.2rem;background:' + project.gradient + ';-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:0.5;margin-bottom:1rem">\u25B7\u300E ' + project.name + ' \u300F\u25C0</div>' +
-            '<p style="font-size:0.875rem;color:var(--text-muted);margin-bottom:1.5rem">built by <span style="color:' + project.accentColor + '">notlousybook</span> with love and way too much caffeine</p>' +
-            '<div style="display:flex;align-items:center;justify-content:center;gap:1rem">' +
-              '<button class="btn-secondary magnetic-btn" onclick="hideProjectDetail()">' +
-                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back to All Projects' +
-              '</button>' +
-              '<a href="' + project.url + '" target="_blank" rel="noopener noreferrer" class="btn-primary magnetic-btn">' +
-                '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg> GitHub' +
-              '</a>' +
-            '</div>' +
-          '</div>' +
-        '</footer>';
-
-      // Show back button in nav
-      var backBtn = document.getElementById('nav-back-btn');
-      if (backBtn) backBtn.style.display = 'inline-flex';
-
-      // Setup scroll reveal for new elements
-      var revealObserver = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) entry.target.classList.add('visible');
-        });
-      }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-
-      projectDetailPage.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .stagger-children')
-        .forEach(function (el) { revealObserver.observe(el); });
-
-      // Re-init magnetic buttons in detail page
-      setupMagneticButtons();
-
-      if (overlay) setTimeout(function () { overlay.classList.remove('active'); }, 100);
-    }, 400);
-  };
-
-  window.hideProjectDetail = function hideProjectDetail() {
     var overlay = document.getElementById('page-transition-overlay');
     if (overlay) overlay.classList.add('active');
 
@@ -1145,51 +747,14 @@ document.addEventListener('DOMContentLoaded', function () {
       projectDetailPage.style.display = 'none';
       mainContent.style.display = 'block';
       isProjectDetailActive = false;
-
       window.scrollTo({ top: 0 });
-
-      // Hide nav back button
-      var backBtn = document.getElementById('nav-back-btn');
-      if (backBtn) backBtn.style.display = 'none';
-
       if (overlay) setTimeout(function () { overlay.classList.remove('active'); }, 100);
     }, 400);
   };
 
 
   /* ============================================================
-     10. MAGNETIC BUTTONS
-     ============================================================ */
-
-  function setupMagneticButtons() {
-    document.querySelectorAll('.magnetic-btn').forEach(function (btn) {
-      if (btn._magneticSetup) return;
-      btn._magneticSetup = true;
-
-      btn.addEventListener('mousemove', function (e) {
-        var rect = btn.getBoundingClientRect();
-        var x = e.clientX - rect.left - rect.width / 2;
-        var y = e.clientY - rect.top - rect.height / 2;
-        btn.style.transform = 'translate(' + (x * 0.15) + 'px, ' + (y * 0.15) + 'px)';
-      });
-      btn.addEventListener('mouseenter', function () {
-        btn.style.transition = 'transform 0.1s ease';
-      });
-      btn.addEventListener('mouseleave', function () {
-        btn.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
-        btn.style.transform = 'translate(0px, 0px)';
-      });
-    });
-  }
-  setupMagneticButtons();
-
-  // MutationObserver for dynamically added buttons
-  var magneticObserver = new MutationObserver(setupMagneticButtons);
-  magneticObserver.observe(document.body, { childList: true, subtree: true });
-
-
-  /* ============================================================
-     11. MOBILE NAV TOGGLE
+     MOBILE NAV
      ============================================================ */
 
   (function initMobileNav() {
@@ -1197,53 +762,49 @@ document.addEventListener('DOMContentLoaded', function () {
     var menu = document.getElementById('mobile-menu');
     if (!btn || !menu) return;
 
-    var isOpen = false;
     btn.addEventListener('click', function () {
-      isOpen = !isOpen;
-      menu.style.maxHeight = isOpen ? menu.scrollHeight + 'px' : '0';
+      menu.classList.toggle('open');
+      btn.setAttribute('aria-expanded', menu.classList.contains('open'));
     });
 
-    // Close menu and smooth-scroll on link click
-    menu.querySelectorAll('.nav-link').forEach(function (link) {
+    document.addEventListener('click', function (e) {
+      if (menu.classList.contains('open') && !menu.contains(e.target) && !btn.contains(e.target)) {
+        menu.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && menu.classList.contains('open')) {
+        menu.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+        btn.focus();
+      }
+    });
+
+    menu.querySelectorAll('a').forEach(function (link) {
       link.addEventListener('click', function () {
-        isOpen = false;
-        menu.style.maxHeight = '0';
-        var href = link.getAttribute('href');
-        if (href && href.startsWith('#')) {
-          var target = document.querySelector(href);
-          if (target) {
-            setTimeout(function () {
-              target.scrollIntoView({ behavior: 'smooth' });
-            }, 100);
-          }
-        }
+        menu.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
       });
     });
   })();
 
 
   /* ============================================================
-     12. NAVIGATION — Active section tracking
+     NAV TRACKING
      ============================================================ */
 
   (function initNavTracking() {
     var nav = document.getElementById('main-nav');
     var sections = document.querySelectorAll('section[id]');
-    var navLinks = document.querySelectorAll('#desktop-nav .nav-link');
+    var navLinks = document.querySelectorAll('#desktop-nav a');
 
     window.addEventListener('scroll', function () {
       var scrollY = window.scrollY;
-
-      // Scrolled state
       if (nav) {
-        if (scrollY > 50) {
-          nav.classList.add('scrolled');
-        } else {
-          nav.classList.remove('scrolled');
-        }
+        nav.classList.toggle('scrolled', scrollY > 50);
       }
-
-      // Active section
       if (isProjectDetailActive) return;
       sections.forEach(function (section) {
         var top = section.offsetTop - 150;
@@ -1263,30 +824,62 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   /* ============================================================
-     13. PAGE TRANSITIONS (handled in show/hideProjectDetail above)
-     ============================================================ */
-
-  // Page transition is integrated into showProjectDetail/hideProjectDetail functions above.
-
-
-  /* ============================================================
-     14. HERO ENTRANCE ANIMATION
+     HERO ENTRANCE
      ============================================================ */
 
   (function initHeroEntrance() {
     var heroContent = document.getElementById('hero-content');
     if (!heroContent) return;
-
-    // Set initial state
     heroContent.style.opacity = '0';
-    heroContent.style.transform = 'translateY(30px)';
+    heroContent.style.transform = 'translateY(28px)';
     heroContent.style.transition = 'opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1)';
-
-    // Trigger animation after 200ms
     setTimeout(function () {
       heroContent.style.opacity = '1';
       heroContent.style.transform = 'translateY(0)';
-    }, 200);
+    }, 300);
+  })();
+
+
+  /* ============================================================
+     CURSOR GLOW
+     ============================================================ */
+
+  (function initCursorGlow() {
+    var glow = document.getElementById('cursor-glow');
+    if (!glow) return;
+    var raf = null;
+
+    document.addEventListener('mousemove', function (e) {
+      if (raf) return;
+      raf = requestAnimationFrame(function () {
+        var x = e.clientX;
+        var y = e.clientY;
+        glow.style.transform = 'translate(' + (x - 150) + 'px, ' + (y - 150) + 'px)';
+        raf = null;
+      });
+    });
+
+    document.addEventListener('mouseleave', function () {
+      glow.style.opacity = '0';
+    });
+
+    document.addEventListener('mouseenter', function () {
+      glow.style.opacity = '1';
+    });
+  })();
+
+
+  /* ============================================================
+     KEYBOARD SHORTCUT
+     ============================================================ */
+
+  (function initKeyboard() {
+    document.addEventListener('keydown', function (e) {
+      if (e.key === '?' && !e.ctrlKey && !e.metaKey) {
+        console.log('%cnotlousybook keyboard shortcuts:', 'font-weight: 700');
+        console.log('  ?  %cshow this help', 'color: oklch(0.52 0.025 185)');
+      }
+    });
   })();
 
 });
