@@ -1,64 +1,36 @@
-// ╔══════════════════════════════════════════════════════════════════╗
-// ║  NOTLOUSYBOOK PORTFOLIO — SITE CONFIG                          ║
-// ║  Edit this file to change EVERYTHING on the site.              ║
-// ║  No code editing needed! Just change the values below.         ║
-// ╚══════════════════════════════════════════════════════════════════╝
-
 const SITE_CONFIG = {
 
-  // ─── SITE IDENTITY ──────────────────────────────────────────────
   name: 'notlousybook',
-  tagline: 'dumb ahh dev from pluto',
+  tagline: 'dev from pluto',
 
-  // ─── SOCIAL LINKS ───────────────────────────────────────────────
   links: {
     github: 'https://github.com/notlousybook',
     discord: 'https://discord.com/users/notlousybook',
     youtube: 'https://www.youtube.com/@notlousybook',
   },
 
-  // ─── NAVIGATION ─────────────────────────────────────────────────
-  navLinks: [
-    { label: 'Home', href: '#home' },
-    { label: 'Projects', href: '#projects' },
-    { label: 'YouTube', href: '#youtube' },
-    { label: 'About', href: '#about' },
-    { label: 'Stack', href: '#stack' },
-  ],
-
-  // ─── HERO SECTION ───────────────────────────────────────────────
   hero: {
     typewriterTexts: [
-      'dumb ahh 15 yr old dev',
-      'mainly vibe codes',
-      'from pluto apparently',
-      'løµsʏ but chill',
+      'makes stuff that feels cool',
+      'self-taught, from pluto',
+      'creative coding & ai',
+      '15 and building',
     ],
-    badge: {
-      text: 'DM ON DISCORDD',
-      detail: '@notlousybook',
-    },
   },
 
-  // ─── PROJECT STATS (shown on main page) ────────────────────────
   projectStats: [
-    { target: 41, label: 'repos', icon: 'folder' },
+    { target: 41, label: 'repos', icon: 'folder-open' },
     { target: 40, label: 'stars', icon: 'star' },
-    { target: 6, label: 'pinned', icon: 'pin' },
+    { target: 6, label: 'pinned', icon: 'push-pin' },
     { target: '∞', label: 'ideas', icon: 'infinity' },
   ],
 
-  // ─── ABOUT SECTION STATS ────────────────────────────────────────
   aboutStats: [
-    { value: '15', label: 'years old', icon: 'cake' },
-    { value: '∞', label: 'ramen consumed', icon: 'ramen' },
-    { value: 'may 13', label: 'birthday', icon: 'cake' },
-    { value: '100%', label: 'self-taught', icon: 'book' },
+    { value: '15', label: 'years old', icon: 'calendar' },
+    { value: 'may 13', label: 'birthday', icon: 'calendar' },
+    { value: '100%', label: 'self-taught', icon: 'book-open-text' },
   ],
 
-  // ─── TECH STACK ─────────────────────────────────────────────────
-  //    icon: name of an SVG in the icons object in script.js
-  //    or use a string emoji/SVG for simple ones
   techStack: [
     { name: 'Python', icon: 'python' },
     { name: 'JavaScript', icon: 'javascript' },
@@ -74,73 +46,67 @@ const SITE_CONFIG = {
     { name: 'Creative Coding', icon: 'creative' },
   ],
 
-  // ─── MARQUEE TICKER ─────────────────────────────────────────────
-  marqueeItems: [
-    { text: 'python', dotColor: 'var(--accent-cyan)' },
-    { text: 'javascript', dotColor: 'var(--accent-violet)' },
-    { text: 'creative coding', dotColor: 'var(--accent-pink)' },
-    { text: 'ai stuff', dotColor: 'var(--accent-cyan)' },
-    { text: 'open source', dotColor: 'var(--accent-violet)' },
-    { text: '2am ideas', dotColor: 'var(--accent-pink)' },
-    { text: 'geometry dash', dotColor: 'var(--accent-cyan)' },
-    { text: 'building stuff', dotColor: 'var(--accent-violet)' },
-  ],
-
-  // ─── FOOTER ─────────────────────────────────────────────────────
   footer: {
-    tagline: 'dumb ahh dev from pluto',
-    watermark: 'vibe coded with code & ramen',
+    tagline: 'dev from pluto',
   },
 
-  // ─── COLLAB SECTION ─────────────────────────────────────────────
-  collabCards: [
+  testimonials: [
     {
-      icon: 'puzzle',
-      iconColor: 'var(--accent-cyan)',
-      title: 'open source',
-      desc: 'wanna contribute to my repos or work on something together? always down for that',
+      quote: 'builds stuff that actually works, which is rare. the ai tool fork saved my team months.',
+      author: 'github collaborator',
     },
     {
-      icon: 'chat',
-      iconColor: 'var(--accent-violet)',
-      title: 'just vibing?',
-      desc: "making friends is literally the best part. u code? cool. u don't? also cool. if we vibe we vibe",
+      quote: 'made a discord bot with actual llm brains — half the server thought it was a person.',
+      author: 'discord community',
     },
     {
-      icon: 'bolt',
-      iconColor: 'var(--accent-pink)',
-      title: '2am ideas',
-      desc: "got some stupid idea at 2am? same lol. let's actually make it. always down for creative coding and ai stuff",
+      quote: 'projects are creative and actually useful. rare combo tbh.',
+      author: 'fellow dev',
     },
   ],
 
-  // ╔══════════════════════════════════════════════════════════════╗
-  // ║  PINNED REPOS — Add, remove, or edit projects here!          ║
-  // ║  Each project object defines a card on the main page          ║
-  // ║  and a full detail page when clicked.                         ║
-  // ╚══════════════════════════════════════════════════════════════╝
+  collabCards: [
+    {
+      icon: 'puzzle-piece',
+      iconColor: '#1F6C9F',
+      title: 'open source',
+      desc: 'wanna collab on something? always down to work on cool stuff together',
+    },
+    {
+      icon: 'chat-text',
+      iconColor: '#346538',
+      title: 'just chatting',
+      desc: 'u code? cool. u dont? also cool. if we vibe we vibe — dev or not',
+    },
+    {
+      icon: 'lightning',
+      iconColor: '#956400',
+      title: '2am ideas',
+      desc: 'got a stupid idea at 2am? same. let us actually make it happen',
+    },
+  ],
+
   projects: [
     {
       slug: 'pollinations-task-master',
       name: 'pollinations-task-master',
-      tagline: 'fork of claude-task-master — use the original now, they added custom provider support',
-      description: 'fork of claude-task-master using pollinations.ai — the original now supports custom providers, use that instead',
-      longDescription: "a fork of eyaltoledano's claude-task-master that used pollinations.ai as the AI provider so it was 100% free — no api keys needed. works with cursor ai, cline, and roo code as an mcp server. parse prds, generate tasks, break down projects, track progress — all powered by ai. heads up: the original claude-task-master now supports custom provider endpoints natively, so you should probably just use that one instead and bring your own provider. this fork was made before that feature existed.",
+      tagline: 'fork of claude-task-master -- original now supports custom providers',
+      description: 'fork of claude-task-master using pollinations.ai as the AI provider for free LLM access',
+      longDescription: "a fork of eyaltoledano's claude-task-master that used pollinations.ai as the AI provider so it was 100% free -- no api keys needed. works with cursor ai, cline, and roo code as an mcp server. parse prds, generate tasks, break down projects, track progress -- all powered by ai. heads up: the original claude-task-master now supports custom provider endpoints natively, so you should probably just use that one instead and bring your own provider. this fork was made before that feature existed.",
       stars: 26,
       forks: 7,
       language: 'JavaScript',
       langColor: '#f1e05a',
-      icon: 'target',
+      icon: 'crosshair',
       url: 'https://github.com/notlousybook/pollinations-task-master',
-      gradient: 'linear-gradient(135deg, #7ef9a5 0%, #7db8ff 50%, #a78bfa 100%)',
       accentColor: '#a78bfa',
       features: [
-        { icon: 'seedling', title: '100% Free AI', description: 'Uses Pollinations.ai — no private keys, no API costs, completely free LLM access. Zero lock-in.' },
+        { icon: 'plant', title: '100% Free AI', description: 'Uses Pollinations.ai -- no private keys, no API costs, completely free LLM access.' },
         { icon: 'link', title: 'Custom Provider Support', description: 'Bring your own OpenAI-compatible endpoint via CUSTOM_BASE / CUSTOM_API_KEY environment variables.' },
         { icon: 'brain', title: 'AI Task Management', description: 'Parse PRDs, generate tasks, break down complex projects into manageable pieces with AI assistance.' },
-        { icon: 'refresh', title: 'MCP Integration', description: 'Works as an MCP server with Cline, Roo Code, and Cursor AI — plug right into your workflow.' },
-        { icon: 'clipboard', title: 'Smart Task Tracking', description: 'Track dependencies, subtasks, and project progress. Never lose context on what needs to be done next.' },
-        { icon: 'bolt', title: 'CLI & MCP Dual Mode', description: 'Use via command line for quick tasks or integrate directly into your AI coding workflow as MCP server.' },
+        { icon: 'arrows-clockwise', title: 'MCP Integration', description: 'Works as an MCP server with Cline, Roo Code, and Cursor AI -- plug right into your workflow.' },
+        { icon: 'clipboard-text', title: 'Smart Task Tracking', description: 'Track dependencies, subtasks, and project progress. Never lose context on what needs to be done next.' },
+        { icon: 'lightning', title: 'CLI & MCP Dual Mode', description: 'Use via command line for quick tasks or integrate directly into your AI coding workflow as MCP server.' },
       ],
       installCommands: [
         'npm install -g pollinations-taskmaster',
@@ -162,24 +128,23 @@ const SITE_CONFIG = {
     {
       slug: 'deepseek-desktop',
       name: 'DeepSeek-Desktop',
-      tagline: 'A cozy desktop wrapper for DeepSeek Chat',
-      description: 'Lightweight, feature-packed DeepSeek app built with PyWebView — no Electron bloat.',
-      longDescription: 'The most cozy desktop wrapper for DeepSeek Chat — smoother, prettier, and nicer to use than any other client. Built with PyWebView for zero Electron bloat, featuring custom UI polish with the Inter font, 500+ dynamic time-based greetings, smooth fade transitions, typing animations, glassmorphic auto-updater notifications, enhanced Markdown rendering with syntax-highlighted code blocks, and a full logging system. Titlebar matches your Windows theme automatically. The DeepSeek experience, remastered.',
+      tagline: 'A desktop wrapper for DeepSeek Chat -- no Electron bloat',
+      description: 'Lightweight DeepSeek app built with PyWebView. Zero Electron bloat.',
+      longDescription: 'A desktop wrapper for DeepSeek Chat built with PyWebView for zero Electron bloat. Features custom UI polish, time-based greeting system, smooth fade transitions, typing animations, glassmorphic auto-updater notifications, enhanced Markdown rendering with syntax-highlighted code blocks, and a full logging system. Titlebar matches your Windows theme automatically.',
       stars: 7,
       forks: 2,
       language: 'Python',
       langColor: '#3572A5',
       icon: 'robot',
       url: 'https://github.com/notlousybook/DeepSeek-Desktop',
-      gradient: 'linear-gradient(135deg, #7db8ff 0%, #a78bfa 50%, #f472b6 100%)',
       accentColor: '#7db8ff',
       features: [
-        { icon: 'bolt', title: 'Zero Electron Bloat', description: 'Built with PyWebView — lightweight, minimal memory footprint, lightning-fast startup times.' },
-        { icon: 'pencil', title: 'Custom UI Polish', description: 'Clean, calm interface with Inter font, smooth transitions, and buttery typing animations.' },
-        { icon: 'wave', title: '500+ Dynamic Greetings', description: 'Time-of-day based greetings that rotate through 500+ variations — always something fresh.' },
-        { icon: 'refresh', title: 'Auto-Updater', description: 'Glassmorphic update notifications with one-click update and restart. Never miss a release.' },
-        { icon: 'notes', title: 'Enhanced Markdown', description: 'Full Markdown support, syntax-highlighted code blocks with JetBrains Mono, XSS protection built in.' },
-        { icon: 'pywebview', title: 'Theme-Aware', description: 'Titlebar matches Windows dark/light theme automatically. Force mode via CLI flags if needed.' },
+        { icon: 'lightning', title: 'Zero Electron Bloat', description: 'Built with PyWebView -- lightweight, minimal memory footprint, fast startup.' },
+        { icon: 'pencil-simple', title: 'Custom UI Polish', description: 'Clean interface with smooth transitions and buttery typing animations.' },
+        { icon: 'hand-waving', title: 'Dynamic Greetings', description: 'Time-of-day based greetings that rotate through 500+ variations.' },
+        { icon: 'arrows-clockwise', title: 'Auto-Updater', description: 'Glassmorphic update notifications with one-click update and restart.' },
+        { icon: 'notebook', title: 'Enhanced Markdown', description: 'Full Markdown support, syntax-highlighted code blocks, XSS protection built in.' },
+        { icon: 'globe', title: 'Theme-Aware', description: 'Titlebar matches Windows dark/light theme automatically. Force mode via CLI flags.' },
       ],
       installCommands: [
         '# Download latest release from GitHub Releases',
@@ -200,24 +165,23 @@ const SITE_CONFIG = {
     {
       slug: 'reloadify',
       name: 'reloadify',
-      tagline: 'Blazing-fast live-reload for web devs',
-      description: 'A blazing-fast, ultra-lightweight Python CLI tool for live-reloading web content.',
-      longDescription: 'A super-fast, feather-light Python tool that automatically reloads your HTML, CSS, and JavaScript files in the browser while you code. Say goodbye to manual refreshing! Auto-discovers HTML files in your current directory and subdirectories, watches for changes in real-time, and serves content instantly. Perfect for rapid web development, prototyping, and anyone tired of hitting F5. Fully configurable with CLI flags for port, directory, and timeout settings.',
+      tagline: 'Live-reload for web devs',
+      description: 'A lightweight Python CLI tool for live-reloading web content.',
+      longDescription: 'A lightweight Python tool that automatically reloads your HTML, CSS, and JavaScript files in the browser while you code. Auto-discovers HTML files in your current directory and subdirectories, watches for changes in real-time, and serves content instantly. Fully configurable with CLI flags for port, directory, and timeout settings.',
       stars: 0,
       forks: 0,
       language: 'Python',
       langColor: '#3572A5',
-      icon: 'bolt',
+      icon: 'lightning',
       url: 'https://github.com/notlousybook/reloadify',
-      gradient: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%)',
       accentColor: '#fbbf24',
       features: [
-        { icon: 'rocket', title: 'Blazing Fast', description: 'Built for speed and efficiency — instant browser reload the millisecond your file changes.' },
-        { icon: 'search', title: 'Ultra-Lightweight', description: 'No heavy dependencies, no bloat. Just pure Python performance in a tiny package.' },
-        { icon: 'refresh', title: 'Live Reloading', description: 'Automatically detects file changes and reloads your browser — zero manual effort.' },
-        { icon: 'search', title: 'Auto HTML Discovery', description: 'Searches directories and subdirectories for .html files. Prompts if multiple found.' },
-        { icon: 'gear', title: 'Fully Configurable', description: 'Custom file, directory, port, and auto-shutdown timeout settings via CLI flags.' },
-        { icon: 'package', title: 'pip install Ready', description: 'Install globally in one command and use from anywhere on your system.' },
+        { icon: 'rocket', title: 'Blazing Fast', description: 'Instant browser reload the millisecond your file changes.' },
+        { icon: 'magnifying-glass', title: 'Ultra-Lightweight', description: 'No heavy dependencies, no bloat. Pure Python performance.' },
+        { icon: 'arrows-clockwise', title: 'Live Reloading', description: 'Automatically detects file changes and reloads your browser.' },
+        { icon: 'magnifying-glass', title: 'Auto HTML Discovery', description: 'Searches directories for .html files. Prompts if multiple found.' },
+        { icon: 'gear-six', title: 'Fully Configurable', description: 'Custom file, directory, port, and auto-shutdown settings via CLI flags.' },
+        { icon: 'package', title: 'pip install Ready', description: 'Install globally in one command and use from anywhere.' },
       ],
       installCommands: ['pip install reloadify'],
       usageCommands: [
@@ -235,30 +199,29 @@ const SITE_CONFIG = {
     {
       slug: 'lousybot',
       name: 'LousyBot',
-      tagline: 'Modular Discord bot with real LLM smarts',
-      description: 'My trusty Discord bot — doing the things no human should have to.',
-      longDescription: "A modular, customizable Discord bot created by LousyBook01 with actual LLM intelligence. Features a flexible provider and model system so you're never locked into one AI service. Easily configurable via .env and plaintext config files with an emoji-rich, expressive interaction style that matches the LousyBook personality. Clean, modular code architecture ready for plugins and custom logic — the bot that does things no human should have to do.",
+      tagline: 'Modular Discord bot with LLM smarts',
+      description: 'My trusty Discord bot -- doing the things no human should have to.',
+      longDescription: "A modular, customizable Discord bot with actual LLM intelligence. Features a flexible provider and model system so you are never locked into one AI service. Easily configurable via .env and plaintext config files. Clean, modular code architecture ready for plugins and custom logic.",
       stars: 0,
       forks: 0,
       language: 'Python',
       langColor: '#3572A5',
       icon: 'robot',
       url: 'https://github.com/notlousybook/LousyBot',
-      gradient: 'linear-gradient(135deg, #5865F2 0%, #7289da 50%, #99aab5 100%)',
       accentColor: '#5865F2',
       features: [
-        { icon: 'lock', title: 'Secure Configuration', description: 'Sensitive config files never committed to git. Secrets managed via .env files safely.' },
-        { icon: 'robot', title: 'Flexible AI Integration', description: 'Provider-agnostic LLM system — no hardcoded OpenAI keys. Switch providers anytime.' },
-        { icon: 'notes', title: 'Easy Setup', description: '.env and plaintext config files — get running in under 5 minutes with clear documentation.' },
-        { icon: 'smile', title: 'Fun & Expressive', description: 'Emoji-rich interaction style that matches the LousyBook personality. Seriously fun to use.' },
-        { icon: 'build', title: 'Plugin Architecture', description: 'Clean, modular code ready for your custom plugins and command extensions.' },
-        { icon: 'chat', title: 'Smart Mentions', description: 'Context-aware mention handling with intelligent response generation via LLM.' },
+        { icon: 'lock-key', title: 'Secure Configuration', description: 'Sensitive config files never committed to git. Secrets managed via .env files.' },
+        { icon: 'robot', title: 'Flexible AI Integration', description: 'Provider-agnostic LLM system -- no hardcoded API keys. Switch providers anytime.' },
+        { icon: 'notebook', title: 'Easy Setup', description: 'Configure with .env and plaintext files -- get running in under 5 minutes.' },
+        { icon: 'smiley', title: 'Expressive Style', description: 'Matches the LousyBook personality. Clean interaction design.' },
+        { icon: 'wrench', title: 'Plugin Architecture', description: 'Clean, modular code ready for your custom plugins and command extensions.' },
+        { icon: 'chat-text', title: 'Smart Mentions', description: 'Context-aware mention handling with intelligent response generation via LLM.' },
       ],
       installCommands: [
         'git clone https://github.com/notlousybook/LousyBot.git',
         'cd LousyBot',
         'pip install -r requirements.txt',
-        'cp .env.example .env  # Fill in your token',
+        'cp .env.example .env',
         'python bot.py',
       ],
       usageCommands: [
@@ -272,34 +235,33 @@ const SITE_CONFIG = {
     {
       slug: 'lousyquiz',
       name: 'LousyQuiz',
-      tagline: 'Interactive quiz app — made for exam survival',
-      description: 'An interactive quiz app with AI integration (planned). Stay tuned.',
-      longDescription: "Made because I forgot everything and needed to study for exams. Built with Bun, Express, and TypeScript for maximum speed. Features JSON file quiz mode where you load your own study materials, progress tracking with a visual progress bar, satisfying confetti animations for correct answers, and shuffled questions every time. AI-generated quiz mode is in the works — soon you'll be able to generate quizzes on the fly using multiple AI providers.",
+      tagline: 'Interactive quiz app for exam survival',
+      description: 'An interactive quiz app with AI integration -- made for studying.',
+      longDescription: "Made because I forgot everything and needed to study for exams. Built with Bun, Express, and TypeScript for maximum speed. Features JSON file quiz mode where you load your own study materials, progress tracking with a visual progress bar, confetti animations for correct answers, and shuffled questions every time. AI-generated quiz mode is in the works.",
       stars: 0,
       forks: 0,
       language: 'JavaScript',
       langColor: '#f1e05a',
       icon: 'question',
       url: 'https://github.com/notlousybook/LousyQuiz',
-      gradient: 'linear-gradient(135deg, #f472b6 0%, #fb923c 50%, #fbbf24 100%)',
       accentColor: '#f472b6',
       features: [
-        { icon: 'clipboard', title: 'JSON Quiz Mode', description: 'Load and take quizzes from local JSON files — bring your own study materials and test yourself.' },
-        { icon: 'robot', title: 'AI Quiz Generation', description: 'Generate quizzes on the fly using AI — planned with multi-provider support (OpenAI, Gemini, etc.).' },
-        { icon: 'confetti', title: 'Confetti Animations', description: 'Satisfying confetti burst animation for every correct answer because you deserve it.' },
-        { icon: 'chart', title: 'Progress Tracking', description: 'Visual progress bar and real-time score tracking throughout your quiz session.' },
-        { icon: 'refresh', title: 'Shuffled Content', description: 'Randomized question order and shuffled answer options every time you take a quiz.' },
-        { icon: 'gear', title: 'Multi-Provider AI', description: 'Supports OpenAI, Gemini, Groq, Mistral, Anthropic, OpenRouter, and custom endpoints.' },
+        { icon: 'clipboard-text', title: 'JSON Quiz Mode', description: 'Load and take quizzes from local JSON files -- bring your own study materials.' },
+        { icon: 'robot', title: 'AI Quiz Generation', description: 'Generate quizzes on the fly using AI -- planned with multi-provider support.' },
+        { icon: 'sparkle', title: 'Animations', description: 'Confetti burst for every correct answer because you deserve it.' },
+        { icon: 'chart-bar', title: 'Progress Tracking', description: 'Visual progress bar and real-time score tracking throughout your session.' },
+        { icon: 'arrows-clockwise', title: 'Shuffled Content', description: 'Randomized question order and shuffled answer options every time.' },
+        { icon: 'gear-six', title: 'Multi-Provider AI', description: 'Supports OpenAI, Gemini, Groq, Mistral, Anthropic, OpenRouter, and custom endpoints.' },
       ],
       installCommands: [
         'git clone https://github.com/notlousybook/LousyQuiz.git',
         'cd LousyQuiz',
         'bun install',
-        'bun run index.ts  # Starts on port 3000',
+        'bun run index.ts',
       ],
       usageCommands: [
         { command: 'bun run index.ts', description: 'Start the quiz server on port 3000' },
-        { command: 'bun run build', description: 'Build to build/lousyquiz.exe' },
+        { command: 'bun run build', description: 'Build to lousyquiz.exe' },
       ],
       techStack: ['TypeScript', 'JavaScript', 'Bun', 'Express', 'HTML/CSS'],
       tags: ['education', 'quiz', 'ai', 'typescript', 'study'],
@@ -309,23 +271,22 @@ const SITE_CONFIG = {
       slug: 'cline-mcp-prompts',
       name: 'Cline-MCP-Prompts',
       tagline: 'Templates for building MCP servers with AI',
-      description: "A set of .clinerules and llms.txt for MCP creation using Cline! or Roo Code.",
-      longDescription: 'Your magical rulebook for MCP server creation — ready to use templates that supercharge your AI coding workflow. Includes .clinerules for AI coding rules and mcp-llms.txt as a comprehensive LLM reference guide. Simply clone the repo, rename the folder to your server name, run the cleanup script, open in VSCode, and prompt Cline or Roo Code to build your MCP server. Created with Gemini 2.0 Pro. Zero friction from idea to working MCP server.',
+      description: 'A set of .clinerules and llms.txt for MCP creation using Cline or Roo Code.',
+      longDescription: 'Ready-to-use templates for MCP server creation. Includes .clinerules for AI coding rules and mcp-llms.txt as a comprehensive LLM reference guide. Clone the repo, rename the folder, run the cleanup script, open in VSCode, and prompt Cline or Roo Code to build your MCP server. Created with Gemini 2.0 Pro.',
       stars: 3,
       forks: 1,
       language: 'Shell',
       langColor: '#e8fbf2',
-      icon: 'notes',
+      icon: 'notebook',
       url: 'https://github.com/notlousybook/Cline-MCP-Prompts',
-      gradient: 'linear-gradient(135deg, #7ef9a5 0%, #34d399 50%, #06b6d4 100%)',
       accentColor: '#34d399',
       features: [
-        { icon: 'sparkle', title: '.clinerules Template', description: 'Pre-configured AI coding rules optimized specifically for MCP server development workflows.' },
-        { icon: 'person', title: 'LLM Reference Guide', description: 'Comprehensive mcp-llms.txt with everything your AI assistant needs to build great MCP servers.' },
-        { icon: 'pencil', title: 'Cleanup Scripts', description: 'One-command cleanup for Windows (PowerShell), Mac/Linux (Bash), and Zsh — all platforms covered.' },
-        { icon: 'link', title: 'SDK References', description: 'Includes links to Python SDK, TypeScript SDK, and extra documentation for deep dives.' },
-        { icon: 'rocket', title: 'Quick Start', description: 'Clone, rename, clean, open in VSCode, prompt Cline — done in under 2 minutes flat.' },
-        { icon: 'link', title: 'Works With', description: 'Compatible with Cline and Roo Code — two of the best AI coding assistants for VS Code.' },
+        { icon: 'sparkle', title: '.clinerules Template', description: 'Pre-configured AI coding rules optimized for MCP server development.' },
+        { icon: 'user', title: 'LLM Reference Guide', description: 'Comprehensive mcp-llms.txt with everything your AI assistant needs.' },
+        { icon: 'pencil-simple', title: 'Cleanup Scripts', description: 'One-command cleanup for Windows, Mac, Linux, and Zsh.' },
+        { icon: 'link', title: 'SDK References', description: 'Includes links to Python SDK, TypeScript SDK, and extra documentation.' },
+        { icon: 'rocket', title: 'Quick Start', description: 'Clone, rename, clean, open, prompt Cline -- done in under 2 minutes.' },
+        { icon: 'link', title: 'Works With', description: 'Compatible with Cline and Roo Code -- two leading AI coding assistants.' },
       ],
       installCommands: [
         'git clone https://github.com/notlousybook/Cline-MCP-Prompts.git',
