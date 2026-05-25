@@ -29,13 +29,17 @@ import * as THREE from 'three'
   }
 
   let lenis = null
-  let trailRafId = null
-  let parallaxRafs = []
+  const animCallbacks = []
   let trailMouseX = 0, trailMouseY = 0
   let trailLerpX = 0, trailLerpY = 0
   let trailLastX = 0, trailLastY = 0
   let trailCurrentIndex = 0
   let trailActiveImages = []
+
+  function initAnimDriver() {
+    function tick() { for (let i = 0; i < animCallbacks.length; i++) animCallbacks[i](); requestAnimationFrame(tick) }
+    requestAnimationFrame(tick)
+  }
 
   function lerp(a, b, f) { return a + (b - a) * f }
   function clamp(v, min, max) { return Math.max(min, Math.min(max, v)) }
@@ -132,8 +136,7 @@ import * as THREE from 'three'
     })
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material)
     scene.add(mesh)
-    function animate() { uniforms.uTime.value += 0.01; renderer.render(scene, camera); requestAnimationFrame(animate) }
-    animate()
+    animCallbacks.push(() => { uniforms.uTime.value += 0.01; renderer.render(scene, camera) })
   }
 
   /* ─── SMOOTH SCROLL ─── */
@@ -290,14 +293,11 @@ import * as THREE from 'three'
           targetY = (window.scrollY - (rect.top + window.scrollY)) * speed
         }
       })
-      function animate() {
+      animCallbacks.push(() => {
         if (!running) return
         currentY = lerp(currentY, targetY, CFG.lerpFactor)
         bg.style.transform = `translate3d(0, ${currentY.toFixed(2)}px, 0)`
-        requestAnimationFrame(animate)
-      }
-      animate()
-      parallaxRafs.push(() => { running = false })
+      })
     })
   }
 
@@ -339,17 +339,15 @@ import * as THREE from 'three'
       }, CFG.trail.imageLifespan)
     }
 
-    function render() {
+    document.addEventListener('mousemove', e => { trailMouseX = e.clientX; trailMouseY = e.clientY })
+    animCallbacks.push(() => {
       trailLerpX = lerp(trailLerpX, trailMouseX, 0.1)
       trailLerpY = lerp(trailLerpY, trailMouseY, 0.1)
       if (!trailLastX && !trailLastY) { trailLastX = trailMouseX; trailLastY = trailMouseY }
       if (Math.hypot(trailMouseX - trailLastX, trailMouseY - trailLastY) > CFG.trail.mouseThreshold) {
         createTrailImage(); trailLastX = trailMouseX; trailLastY = trailMouseY
       }
-      trailRafId = requestAnimationFrame(render)
-    }
-    document.addEventListener('mousemove', e => { trailMouseX = e.clientX; trailMouseY = e.clientY })
-    render()
+    })
   }
 
   /* ─── PATTERN 9: Tech Grid Hover Highlight ─── */
@@ -785,8 +783,7 @@ import * as THREE from 'three'
     let tx = 0, ty = 0, cx = 0, cy = 0
     document.addEventListener('mousemove', e => { tx = e.clientX; ty = e.clientY; el.classList.add('visible') })
     document.addEventListener('mouseleave', () => el.classList.remove('visible'))
-    function animate() { cx = lerp(cx, tx, 0.08); cy = lerp(cy, ty, 0.08); el.style.cssText += `left:${cx.toFixed(2)}px;top:${cy.toFixed(2)}px`; requestAnimationFrame(animate) }
-    animate()
+    animCallbacks.push(() => { cx = lerp(cx, tx, 0.08); cy = lerp(cy, ty, 0.08); el.style.cssText += `left:${cx.toFixed(2)}px;top:${cy.toFixed(2)}px` })
   }
 
   /* ─── HERO ENTRY (slowed) ─── */
@@ -846,6 +843,7 @@ import * as THREE from 'three'
   /* ─── INIT ─── */
   function init() {
     gsap.registerPlugin(ScrollTrigger)
+    initAnimDriver()
     initSmoothScroll()
     initTypewriter()
     initHeroShader()
