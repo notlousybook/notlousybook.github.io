@@ -31,7 +31,8 @@
   --spacing-section-mobile:100px;
   --nav-height:56px
 }
-::selection{background:var(--accent);color:#fff}
+
+::selection{background:rgba(139,92,246,0.35);color:var(--text)}
 html{scroll-behavior:auto}
 body{
   font-family:'Cabinet Grotesk',system-ui,-apple-system,sans-serif;
@@ -276,7 +277,7 @@ body{
 }
 .btn-primary:hover .btn-icon-wrap{
   background:rgba(0,0,0,0.15);
-  transform:translateX(4px) translateY(-3px) scale(1.1)
+  transform:translateX(5px) translateY(-4px) scale(1.12)
 }
 .btn-secondary .btn-icon-wrap{
   background:rgba(255,255,255,0.06);
@@ -290,9 +291,9 @@ body{
 .btn-large .btn-icon-wrap{width:40px;height:40px}
 
 /* ─── SECTIONS ─── */
-.section{padding:var(--spacing-section) 0;position:relative}
+.section{padding:var(--spacing-section) 0;position:relative;opacity:1}
 .section-container{max-width:1200px;margin:0 auto;padding:0 28px;position:relative;z-index:1}
-.section-header{margin-bottom:64px}
+.section-header{margin-bottom:64px;opacity:0}
 .section-eyebrow{
   display:inline-flex;align-items:center;gap:8px;
   padding:6px 16px 6px 18px;
@@ -327,32 +328,40 @@ body{
   line-height:1.7
 }
 
-/* ─── DOUBLE-BEZEL CARD ─── */
+/* ─── DOUBLE-BEZEL CARD (Agency-tier nested architecture) ─── */
 .doppel{
   position:relative;
   padding:2px;
   background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
   border-radius:calc(var(--radius-lg) + 8px);
-  transition:all 0.5s var(--ease-out-expo)
+  transition:all 0.6s var(--ease-smooth);
+  will-change:transform
 }
 .doppel-inner{
   position:relative;
   background:var(--bg-card);
-  border-radius:var(--radius-lg);
+  border-radius:calc(var(--radius-lg) + 2px);
   padding:36px;
   height:100%;
   box-shadow:inset 0 1px 1px rgba(255,255,255,0.08);
-  transition:all 0.5s var(--ease-out-expo)
+  transition:all 0.6s var(--ease-smooth)
 }
 .doppel-static .doppel-inner{background:var(--bg-elevated)}
 
 /* ─── CASCADE CARD VISUALS ─── */
+.cascade-card .doppel{
+  background:rgba(255,255,255,0.03);
+  border-radius:calc(var(--radius-lg) + 8px)
+}
 .cascade-card .doppel-inner{
-  background:var(--bg-card)
+  background:var(--bg-card);
+  border-radius:calc(var(--radius-lg) + 2px)
 }
 .cascade-card:hover .doppel{
-  background:rgba(139,92,246,0.12);
-  box-shadow:0 0 40px rgba(139,92,246,0.06)
+  border-color:var(--border-accent);
+  background:rgba(139,92,246,0.1);
+  box-shadow:0 0 48px rgba(139,92,246,0.08)
 }
 .cascade-card:hover .doppel-inner{
   background:var(--bg-card-hover)
@@ -805,18 +814,29 @@ body{
   height:100%;
   transform-style:preserve-3d
 }
+.connect-card .doppel{
+  background:rgba(255,255,255,0.03);
+  border-color:var(--border);
+  border-radius:calc(var(--radius-lg) + 8px)
+}
 .connect-card .doppel-inner{
   display:flex;flex-direction:column;align-items:center;
   padding:48px 32px;
   height:100%;
-  border:1px solid var(--border);
-  border-radius:var(--radius-md);
+  border-radius:calc(var(--radius-lg) + 2px);
   background:var(--glass);
-  transition:border-color 0.4s var(--ease-out-expo),background 0.4s var(--ease-out-expo)
+  box-shadow:inset 0 1px 1px rgba(255,255,255,0.06);
+  transition:border-color 0.5s var(--ease-out-expo),background 0.5s var(--ease-out-expo),box-shadow 0.5s var(--ease-out-expo)
+}
+.connect-card:hover .doppel{
+  border-color:var(--border-accent);
+  background:rgba(139,92,246,0.1);
+  box-shadow:0 0 48px rgba(139,92,246,0.08)
 }
 .connect-card:hover .doppel-inner{
-  border-color:var(--border-accent);
-  background:rgba(139,92,246,0.04)
+  border-color:transparent;
+  background:rgba(139,92,246,0.04);
+  box-shadow:inset 0 1px 1px rgba(139,92,246,0.08)
 }
 .connect-card:first-child{grid-column:1 / -1;max-width:520px;justify-self:center}
 .connect-card-icon{
@@ -912,12 +932,13 @@ footer::before{
 /* ─── CURSOR GLOW ─── */
 .cursor-glow{
   position:fixed;z-index:999;
-  width:400px;height:400px;
+  width:500px;height:500px;
   border-radius:50%;
   pointer-events:none;
-  background:radial-gradient(circle at center,rgba(139,92,246,0.08),transparent 70%);
+  mix-blend-mode:screen;
+  background:radial-gradient(circle at center,rgba(139,92,246,0.1),rgba(6,182,212,0.04),transparent 70%);
   transform:translate(-50%,-50%);
-  transition:opacity 0.5s var(--ease-smooth);
+  transition:opacity 0.6s var(--ease-smooth);
   will-change:transform;
   opacity:0
 }
@@ -1089,8 +1110,10 @@ footer::before{
 .block-grid-overlay{position:fixed;inset:0;z-index:99999;pointer-events:none;overflow:hidden}
 
 /* ─── PATTERN 14: SVG Stroke Draw ─── */
-.deco-svg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.4}
+.deco-svg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:-1;opacity:0.35}
 .deco-svg path{fill:none;stroke-dasharray:2000;stroke-dashoffset:2000;will-change:stroke-dashoffset}
+#deco-stroke-path{stroke:var(--accent);stroke-width:2;opacity:0.25}
+#deco-wave-path{stroke:var(--accent-cyan);stroke-width:1;opacity:0.2}
 
 /* ─── PATTERN 17: Pinned Footer ─── */
 .pinned-footer{position:relative;z-index:2}

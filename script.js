@@ -262,12 +262,11 @@
     })
   }
 
-  /* ─── PATTERN 6: Tilt Sections (entrance only — NO PIN) ─── */
+  /* ─── PATTERN 6: Tilt Sections (entrance only — no pin) ─── */
   function initTiltSections() {
     document.querySelectorAll('.section').forEach(section => {
       const container = section.querySelector('.section-container')
       if (!container) return
-      const orig = window.getComputedStyle(container).transform
       gsap.fromTo(container,
         { rotation: -1.5, transformOrigin: 'bottom left' },
         { rotation: 0, ease: 'none', scrollTrigger: { trigger: section, start: 'top bottom', end: 'top 30%', scrub: true } }
@@ -400,35 +399,66 @@
     class Particle {
       constructor(el, o) {
         this.el = el; this.x = 0; this.y = 0; this.r = 0
-        this.g = o.gravity || 0.25; this.f = o.friction || 0.99
-        const a = Math.random() * Math.PI * 2
+        this.gravity = o.gravity || 0.15
+        this.friction = o.friction || 0.97
+        const angle = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 0.8
         const force = (o.minForce || 3) + Math.random() * ((o.maxForce || 20) - (o.minForce || 3))
-        this.vx = Math.cos(a) * force; this.vy = Math.sin(a) * force - (o.upward || 0); this.vr = (Math.random() - 0.5) * (o.rotSpeed || 10)
+        this.vx = Math.cos(angle) * force
+        this.vy = Math.sin(angle) * force
+        this.vr = (Math.random() - 0.5) * (o.rotationSpeed || 8)
       }
       update() {
-        this.vy += this.g; this.vx *= this.f; this.vy *= this.f; this.vr *= this.f
-        this.x += this.vx; this.y += this.vy; this.r += this.vr
+        this.vy += this.gravity
+        this.vx *= this.friction
+        this.vy *= this.friction
+        this.vr *= this.friction
+        this.x += this.vx
+        this.y += this.vy
+        this.r += this.vr
         this.el.style.transform = `translate3d(${this.x.toFixed(2)}px,${this.y.toFixed(2)}px,0) rotate(${this.r.toFixed(2)}deg)`
       }
     }
 
     function explode() {
-      if (triggered) return; triggered = true; container.innerHTML = ''
-      for (let i = 0; i < 8; i++) {
+      if (triggered) return
+      triggered = true
+      container.innerHTML = ''
+      const containerH = container.offsetHeight
+      for (let i = 0; i < 12; i++) {
         const el = document.createElement('div')
-        el.style.cssText = `position:absolute;bottom:0;width:60px;height:60px;left:${10 + Math.random() * 80}%;border-radius:50%;background:${colors[i % colors.length]};opacity:0.6`
+        const size = 20 + Math.random() * 40
+        const startX = Math.random() * 80 + 10
+        const startY = containerH * (0.3 + Math.random() * 0.5)
+        el.style.cssText = `position:absolute;width:${size}px;height:${size}px;left:${startX}%;top:${startY}px;border-radius:${Math.random() > 0.5 ? '50%' : '4px'};background:${colors[i % colors.length]};opacity:${0.4 + Math.random() * 0.4}`
         container.appendChild(el)
-        particles.push(new Particle(el, { gravity: 0.2, friction: 0.98, minForce: 3, maxForce: 22, upward: 14, rotSpeed: 12 }))
+        particles.push(new Particle(el, {
+          gravity: 0.12 + Math.random() * 0.1,
+          friction: 0.96 + Math.random() * 0.02,
+          minForce: 5,
+          maxForce: 18 + Math.random() * 10,
+          upward: 0,
+          rotationSpeed: 6 + Math.random() * 8
+        }))
       }
       function animate() {
         let done = true
-        particles.forEach(p => { p.update(); if (p.y < container.clientHeight + 200) done = false })
-        if (done) { cancelAnimationFrame(animId); particles = []; setTimeout(() => { triggered = false }, 800); return }
+        particles.forEach(p => {
+          p.update()
+          const opacity = Math.max(0, 1 - (p.y + 100) / (container.clientHeight + 300))
+          p.el.style.opacity = opacity.toFixed(2)
+          if (p.y < container.clientHeight + 200 && opacity > 0.01) done = false
+        })
+        if (done) {
+          cancelAnimationFrame(animId)
+          particles = []
+          setTimeout(() => { triggered = false }, 800)
+          return
+        }
         animId = requestAnimationFrame(animate)
       }
       animate()
     }
-    ScrollTrigger.create({ trigger: '#main-footer', start: 'top 75%', once: true, onEnter: explode })
+    ScrollTrigger.create({ trigger: '#main-footer', start: 'top 85%', once: true, onEnter: explode })
   }
 
   /* ─── PATTERN 13: Block Grid Transition (colorful, full-screen fit, slow) ─── */
@@ -456,13 +486,46 @@
     gsap.to(overlay.children, { opacity: 0, duration: 0.12, stagger: { amount: 1.2, from: 'random' }, delay: 0.4, ease: 'expo.inOut', onComplete: () => { overlay.style.display = 'none' } })
   }
 
-  /* ─── PATTERN 14: SVG Stroke Draw ─── */
+  /* ─── PATTERN 14: SVG Stroke Draw + Parallax ─── */
   function initSVGDraw() {
+    const svg = document.querySelector('.deco-svg')
     document.querySelectorAll('#deco-stroke-path, #deco-wave-path').forEach(path => {
+      path.style.opacity = '1'
       const len = path.getTotalLength()
       gsap.set(path, { strokeDasharray: len, strokeDashoffset: len })
-      ScrollTrigger.create({ trigger: document.body, start: 'top top', end: 'bottom bottom', scrub: 0.5, onUpdate: (s) => gsap.set(path, { strokeDashoffset: len * (1 - s.progress) }) })
+      gsap.to(path, {
+        strokeDashoffset: 0,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: document.body,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 0.5,
+        }
+      })
     })
+    if (svg) {
+      gsap.to(svg, {
+        y: 80,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: document.body,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 0.5,
+        }
+      })
+      gsap.to(svg, {
+        opacity: 0,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: '.craft-section',
+          start: 'top bottom',
+          end: 'top 20%',
+          scrub: 0.5,
+        }
+      })
+    }
   }
 
   /* ─── PATTERN 17: Footer Progress Bar (no pin — was hiding footer) ─── */
@@ -473,6 +536,16 @@
     bar.className = 'pinned-footer-progress'
     bar.style.cssText = 'position:absolute;top:-2px;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent-cyan));transform-origin:left;transform:scaleX(0);will-change:transform;z-index:3'
     footer.insertBefore(bar, footer.firstChild)
+    gsap.to(bar, {
+      scaleX: 1,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: '#main-footer',
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: 0.5,
+      }
+    })
   }
 
   /* ─── PATTERN 18: Mobile Menu (GSAP stagger on existing element) ─── */
@@ -728,6 +801,44 @@
       .to('.hero-actions .btn', { y: 0, opacity: 1, duration: 1, stagger: 0.2 }, 1.4)
   }
 
+  /* ─── PATTERN 2: Hero Scroll Phases (multi-phase onUpdate) ─── */
+  function initHeroScrollPhases() {
+    const hero = document.querySelector('.hero')
+    if (!hero) return
+    const heroBg = document.querySelector('.hero-bg-image')
+    const heroOverlay = document.querySelector('.hero-overlay')
+    const heroCanvas = document.getElementById('hero-canvas')
+    const pinHeight = window.innerHeight * 0.6
+    ScrollTrigger.create({
+      trigger: hero,
+      start: 'bottom bottom',
+      end: `+=${pinHeight}`,
+      pin: true,
+      pinSpacing: true,
+      scrub: 0.3,
+      onUpdate: (self) => {
+        const p = self.progress
+        const phase1 = Math.min(p / 0.5, 1)
+        const phase2 = Math.max(0, (p - 0.5) / 0.5)
+        if (heroOverlay) {
+          heroOverlay.style.opacity = (1 - phase1 * 0.6).toFixed(3)
+          heroOverlay.style.transform = `translateY(${-phase1 * 80}px) scale(${1 - phase1 * 0.05})`
+        }
+        if (heroCanvas) {
+          heroCanvas.style.opacity = (1 - phase1 * 0.5).toFixed(3)
+          heroCanvas.style.transform = `scale(${1 + phase1 * 0.08})`
+        }
+        if (heroBg) {
+          heroBg.style.transform = `translate3d(0, ${(-phase1 * 40).toFixed(1)}px, 0) scale(${1 + phase1 * 0.06})`
+        }
+        if (phase2 > 0) {
+          const projectsSection = document.getElementById('projects')
+          if (projectsSection) projectsSection.style.opacity = phase2.toFixed(3)
+        }
+      }
+    })
+  }
+
   /* ─── INIT ─── */
   function init() {
     gsap.registerPlugin(ScrollTrigger)
@@ -748,7 +859,7 @@
       initTextReveals()         // Pattern 5A
       initBlockReveal()         // Pattern 5B
       initParallelStagger()     // Pattern 5C
-      initTiltSections()        // Pattern 6 (tilt only, no pin)
+      initTiltSections()        // Pattern 6 (tilt + pin)
       initParallaxLerp()        // Pattern 7
       initImageTrail()          // Pattern 8
       initHoverHighlight()      // Pattern 9
@@ -759,6 +870,7 @@
       initPinnedFooter()        // Pattern 17
       initMobileMenuGsap()      // Pattern 18
       initInfiniteTextPath()    // Pattern 19
+      initHeroScrollPhases()    // Pattern 2
       initNavHoverEffect()      // Nav hover blur
 
       ScrollTrigger.refresh()
