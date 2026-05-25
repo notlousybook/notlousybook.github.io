@@ -1,3 +1,5 @@
+import * as THREE from 'three'
+
 (() => {
   'use strict'
 
@@ -63,11 +65,13 @@
   /* ─── THREE.JS HERO SHADER ─── */
   function initHeroShader() {
     const canvas = document.getElementById('hero-canvas')
-    if (!canvas || typeof THREE === 'undefined') return
+    if (!canvas) return
     const scene = new THREE.Scene()
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10)
     camera.position.z = 1
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false })
+    let renderer
+    try { renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false }) }
+    catch (e) { canvas.style.display = 'none'; return }
     function resizeCanvas() {
       const w = canvas.parentElement.clientWidth, h = canvas.parentElement.clientHeight
       renderer.setSize(w, h)
