@@ -1,2 +1,0 @@
-vec3 bloom(sampler2D tex,vec2 p){vec3 col=vec3(0.);for(int i=1;i<9;i++)col+=textureLod(tex,p,float(i)).rgb/float(9-i);return max(col-.6,vec3(0.));}
-void mainImage(out vec4 fragColor,vec2 fragCoord){vec2 uv=fragCoord.xy/iResolution.xy;vec3 col=texture(iChannel0,uv).rgb;vec2 q=uv;col=pow(col*2.,vec3(1.75));col*=sqrt(32.*q.x*q.y*(1.-q.x)*(1.-q.y));col+=bloom(iChannel0,uv)*2.;fragColor=vec4(col,.35);}

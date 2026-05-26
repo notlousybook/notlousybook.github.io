@@ -3,16 +3,9 @@ import * as THREE from 'three'
 (() => {
   'use strict'
 
+  let CONFIG = null
+
   const CFG = {
-    trail: {
-      sliceCount: 6,
-      staggerIn: 40,
-      staggerOut: 25,
-      revealDuration: 350,
-      fadeDuration: 450,
-      imageLifespan: 1000,
-      mouseThreshold: 100,
-    },
     explosion: {
       gravity: 0.2,
       friction: 0.98,
@@ -28,26 +21,67 @@ import * as THREE from 'three'
     blockGridSize: 100,
   }
 
+  const MARQUEE = {
+    // camera
+    fov: 50,
+    far: 5000,
+    camMult: 1.2,
+
+    // ring
+    radiusProp: 1.2,
+    radiusMax: 6000,
+
+    // pills
+    pillScale: 1.8,
+    fontSize: 28,
+    padX: 80,
+    padY: 20,
+
+    // motion
+    rotSpeed: 0.004,
+
+    // depth fade
+    fadeMin: 0.05,
+  }
+
+  let currentBeat = 0.08
+  let beatSharp = 0
+  let beatOnset = 0
+  let audioReactiveReady = false
   let lenis = null
   const animCallbacks = []
-  let trailMouseX = 0, trailMouseY = 0
-  let trailLerpX = 0, trailLerpY = 0
-  let trailLastX = 0, trailLastY = 0
-  let trailCurrentIndex = 0
-  let trailActiveImages = []
+  let animPaused = false
+
+  const isMobile = window.innerWidth <= 768
+  const isLowEnd = navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2
+  const isDebug = navigator.hardwareConcurrency === undefined
 
   function initAnimDriver() {
-    function tick() { for (let i = 0; i < animCallbacks.length; i++) animCallbacks[i](); requestAnimationFrame(tick) }
+    function tick() {
+      if (!animPaused) {
+        for (let i = 0; i < animCallbacks.length; i++) animCallbacks[i]()
+      }
+      requestAnimationFrame(tick)
+    }
     requestAnimationFrame(tick)
+    document.addEventListener('visibilitychange', () => {
+      animPaused = document.hidden
+    })
   }
 
   function lerp(a, b, f) { return a + (b - a) * f }
   function clamp(v, min, max) { return Math.max(min, Math.min(max, v)) }
-  /* ─── TYPEWRITER ─── */
+
+  function getOffsetTop(el) {
+    let top = 0
+    do { top += el.offsetTop || 0; el = el.offsetParent } while (el)
+    return top
+  }
+
   function initTypewriter() {
     const el = document.getElementById('typewriter-text')
     if (!el) return
-    const texts = SITE_CONFIG.hero.typewriterTexts || []
+    const texts = CONFIG.hero.typewriterTexts || []
     let idx = 0, charIdx = 0, deleting = false
     function tick() {
       const current = texts[idx]
@@ -66,7 +100,6 @@ import * as THREE from 'three'
     tick()
   }
 
-  /* ─── THREE.JS HERO SHADER ─── */
   function initHeroShader() {
     const canvas = document.getElementById('hero-canvas')
     if (!canvas) return
@@ -74,72 +107,104 @@ import * as THREE from 'three'
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10)
     camera.position.z = 1
     let renderer
-    try { renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false }) }
-    catch (e) { canvas.style.display = 'none'; return }
-    function resizeCanvas() {
-      const w = canvas.parentElement.clientWidth, h = canvas.parentElement.clientHeight
-      renderer.setSize(w, h)
-      renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
-      if (uniforms) uniforms.uResolution.value.set(renderer.domElement.width, renderer.domElement.height)
-    }
+    try {
+      const pixelRatio = isLowEnd ? Math.min(devicePixelRatio, 1) : Math.min(devicePixelRatio, 2)
+      renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, powerPreference: 'low-power' })
+      renderer.setPixelRatio(pixelRatio)
+    } catch (e) { canvas.style.display = 'none'; return }
+
     const uniforms = {
       uTime: { value: 0 },
       uResolution: { value: new THREE.Vector2(1, 1) },
       uMouse: { value: new THREE.Vector2(0, 0) },
+      uBeat: { value: 0 },
+    }
+    const mouseTarget = { x: 0, y: 0 }
+
+    function resizeCanvas() {
+      const w = canvas.parentElement.clientWidth, h = canvas.parentElement.clientHeight
+      renderer.setSize(w, h)
+      const pr = isLowEnd ? Math.min(devicePixelRatio, 1) : Math.min(devicePixelRatio, 2)
+      renderer.setPixelRatio(pr)
+      uniforms.uResolution.value.set(renderer.domElement.width, renderer.domElement.height)
     }
     resizeCanvas()
     window.addEventListener('resize', resizeCanvas)
     document.addEventListener('mousemove', e => {
-      uniforms.uMouse.value.x = (e.clientX / window.innerWidth) * 2 - 1
-      uniforms.uMouse.value.y = -(e.clientY / window.innerHeight) * 2 + 1
+      mouseTarget.x = (e.clientX / window.innerWidth) * 2 - 1
+      mouseTarget.y = -(e.clientY / window.innerHeight) * 2 + 1
+    })
+    animCallbacks.push(() => {
+      uniforms.uMouse.value.x = lerp(uniforms.uMouse.value.x, mouseTarget.x, 0.06)
+      uniforms.uMouse.value.y = lerp(uniforms.uMouse.value.y, mouseTarget.y, 0.06)
     })
     const material = new THREE.ShaderMaterial({
       uniforms,
       vertexShader: `varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
       fragmentShader: `
         precision highp float;
-        varying vec2 vUv;uniform float uTime;uniform vec2 uResolution;uniform vec2 uMouse;
-        vec3 mod289(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}
-        vec4 mod289(vec4 x){return x-floor(x*(1.0/289.0))*289.0;}
-        vec4 permute(vec4 x){return mod289(((x*34.0)+10.0)*x);}
-        vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-0.85373472095314*r;}
-        float snoise(vec3 v){
-          const vec2 C=vec2(1.0/6.0,1.0/3.0);const vec4 D=vec4(0.0,0.5,1.0,2.0);
-          vec3 i=floor(v+dot(v,C.yyy));vec3 x0=v-i+dot(i,C.xxx);
-          vec3 g=step(x0.yzx,x0.xyz);vec3 l=1.0-g;
-          vec3 i1=min(g.xyz,l.zxy);vec3 i2=max(g.xyz,l.zxy);
-          vec3 x1=x0-i1+C.xxx;vec3 x2=x0-i2+C.yyy;vec3 x3=x0-D.yyy;
-          i=mod289(i);vec4 p=permute(permute(permute(i.z+vec4(0.0,i1.z,i2.z,1.0))+i.y+vec4(0.0,i1.y,i2.y,1.0))+i.x+vec4(0.0,i1.x,i2.x,1.0));
-          float n_=0.142857142857;vec3 ns=n_*D.wyz-D.xzx;
-          vec4 j=p-49.0*floor(p*ns.z*ns.z);vec4 x_=floor(j*ns.z);vec4 y_=floor(j-7.0*x_);
-          vec4 x=x_*ns.x+ns.yyyy;vec4 y=y_*ns.x+ns.yyyy;vec4 h=1.0-abs(x)-abs(y);
-          vec4 b0=vec4(x.xy,y.xy);vec4 b1=vec4(x.zw,y.zw);
-          vec4 s0=floor(b0)*2.0+1.0;vec4 s1=floor(b1)*2.0+1.0;vec4 sh=-step(h,vec4(0.0));
-          vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy;vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
-          vec3 p0=vec3(a0.xy,h.x);vec3 p1=vec3(a0.zw,h.y);vec3 p2=vec3(a1.xy,h.z);vec3 p3=vec3(a1.zw,h.w);
-          vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));
-          p0*=norm.x;p1*=norm.y;p2*=norm.z;p3*=norm.w;
-          vec4 m=max(0.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.0);
-          m=m*m;return 42.0*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
-        }
+        varying vec2 vUv;uniform float uTime;uniform vec2 uResolution;uniform vec2 uMouse;uniform float uBeat;
+
+        mat2 rot(float a){return mat2(cos(a),sin(a),-sin(a),cos(a));}
+        float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+
         void main(){
           vec2 uv=vUv;float ar=uResolution.x/uResolution.y;
-          vec2 p=uv*2.0-1.0;p.x*=ar;float t=uTime*0.12;
-          float n1=snoise(vec3(p*1.5+uMouse*0.3,t));float n2=snoise(vec3(p*2.8-vec2(0.5,0.7),t*0.7+2.0));
-          float n3=snoise(vec3(p*4.2+vec2(1.2,0.3),t*0.5+4.0));float n=n1*0.5+n2*0.3+n3*0.2;n=n*0.5+0.5;
-          vec3 c1=vec3(0.14,0.04,0.22);vec3 c2=vec3(0.02,0.06,0.18);vec3 c3=vec3(0.18,0.03,0.12);vec3 c4=vec3(0.01,0.04,0.10);
-          vec3 col=mix(c1,c2,smoothstep(0.0,0.5,n));col=mix(col,c3,smoothstep(0.3,0.8,n));col=mix(col,c4,smoothstep(0.6,1.0,n));
-          float glow=sin(n*14.0+t*0.6)*0.5+0.5;col+=vec3(0.06,0.02,0.10)*glow*0.35;
-          float vig=1.0-length(p)*0.5;col*=vig;gl_FragColor=vec4(col,0.88);
+          vec2 p=(uv-0.5)*vec2(ar,1.0);float t=uTime*0.13;
+
+          float bp=1.0+uBeat*0.8;vec2 wp=p;
+          wp.x+=sin(t*0.31+wp.y*2.4)*0.12*bp;
+          wp.y+=cos(t*0.26+wp.x*2.4)*0.12*bp;
+          p=mix(p,wp,0.3+sin(t*0.1)*0.25+uBeat*0.15);
+
+          vec2 m=uMouse*0.35;
+          m+=vec2(sin(t*0.16)*0.07,cos(t*0.13)*0.07);
+          m+=uBeat*0.1;
+
+          vec2 q=p*rot(sin(t*0.2)*0.55);
+          float f1=sin(q.x*2.3+q.y*1.7+t*0.5+m.x)*cos(q.y*2.1-q.x*1.3+t*0.4+m.y);
+          vec2 q2=p*rot(cos(t*0.16)*0.75+0.5);
+          float f2=sin(q2.x*4.1+q2.y*3.3+t*0.7+uBeat*2.0)*cos(q2.y*3.7-q2.x*2.9+t*0.6+uBeat*1.5);
+          vec2 q3=p*rot(sin(t*0.24)*0.65+1.1);
+          float f3=sin(q3.x*7.7+q3.y*5.9+t*1.1)*cos(q3.y*6.3-q3.x*5.1+t*1.0);
+          float r=length(p+m*0.25);
+          float f4=sin(r*5.0-t*0.9)*0.5+cos(r*3.5+t*0.6)*0.5;
+
+          float flow=(f1*0.35+f2*0.28+f3*0.22+f4*0.15)*(1.0+uBeat*0.3);
+          flow=flow*0.5+0.5;flow=min(flow,1.0);
+
+          vec3 dk1=vec3(0.03,0.01,0.06);vec3 dk2=vec3(0.10,0.03,0.15);
+          vec3 mid=vec3(0.22,0.10,0.28);vec3 accent=vec3(0.55,0.37,0.96);
+          vec3 cyan=vec3(0.02,0.71,0.83);
+
+          vec3 col=mix(dk1,dk2,smoothstep(0.0,0.35,flow));
+          col=mix(col,mid,smoothstep(0.25,0.6,flow));
+
+          float hi=pow(sin(flow*14.0+t*0.9)*0.5+0.5,3.0);
+          vec3 hc=mix(accent,cyan,sin(flow*5.0+t*0.4+uBeat*2.0)*0.5+0.5);
+          col+=hc*hi*0.45*(1.0+uBeat*0.6);
+
+          float rglow=exp(-r*2.5)*0.25*(1.0+uBeat*1.2);
+          col+=accent*rglow*0.15;col+=cyan*rglow*0.08;
+
+          float edg=length(p);
+          col.r+=sin(edg*12.0-t*0.6)*0.015;
+          col.b+=cos(edg*12.0+t*0.5)*0.015;
+
+          col*=1.0-edg*0.55;
+
+          float g=hash(uv*uResolution*0.01);
+          col+=(g-0.5)*0.012;
+
+          gl_FragColor=vec4(col,0.88);
         }
       `
     })
     const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material)
     scene.add(mesh)
-    animCallbacks.push(() => { uniforms.uTime.value += 0.01; renderer.render(scene, camera) })
+    animCallbacks.push(() => { uniforms.uTime.value += 0.01; uniforms.uBeat.value = currentBeat; renderer.render(scene, camera) })
   }
 
-  /* ─── SMOOTH SCROLL ─── */
   function initSmoothScroll() {
     if (typeof Lenis === 'undefined') return
     lenis = new Lenis({ duration: 1.8, easing: t => Math.min(1, 1 - Math.pow(1 - t, 3)), orientation: 'vertical', smoothWheel: true })
@@ -148,9 +213,8 @@ import * as THREE from 'three'
     gsap.ticker.lagSmoothing(0)
   }
 
-  /* ─── PATTERN 3: Rotating Cycle Orb ─── */
   function initRotatingCycle() {
-    const orb = document.querySelector('.craft-orb')
+    const orb = document.querySelector('.things-glow')
     if (!orb) return
     let currentCycle = 0
     const label = document.createElement('div')
@@ -158,7 +222,7 @@ import * as THREE from 'three'
     label.textContent = CFG.cycleTexts[0]
     orb.appendChild(label)
     ScrollTrigger.create({
-      trigger: '.craft-section', start: 'top bottom', end: 'bottom top',
+      trigger: '.things-section', start: 'top bottom', end: 'bottom top',
       onUpdate: (self) => {
         const p = self.progress
         gsap.set(orb, { rotation: p * 720 })
@@ -172,13 +236,11 @@ import * as THREE from 'three'
     })
   }
 
-  /* ─── PATTERN 4: Expanding Tech Grid ─── */
   function initExpandingGrid() {
     const grid = document.getElementById('tech-grid')
     if (!grid) return
-    const items = grid.querySelectorAll('.craft-tech-item')
+    const items = grid.querySelectorAll('.things-tool-item')
     if (!items.length) return
-    const isMobile = window.innerWidth < 768
     function onScroll() {
       const scrollY = window.scrollY, vh = window.innerHeight
       const rect = grid.getBoundingClientRect()
@@ -192,12 +254,11 @@ import * as THREE from 'three'
     gsap.ticker.lagSmoothing(0)
   }
 
-  /* ─── PATTERN 5A: SplitType Text Reveal (reverses on scroll up) ─── */
   function initTextReveals() {
     if (typeof SplitType === 'undefined') return
     const targets = [
       { sel: '.section-title', trigger: '.section-header' },
-      { sel: '.craft-lede', trigger: '.craft-container' },
+      { sel: '.things-intro', trigger: '.things-container' },
     ]
     targets.forEach(({ sel, trigger }) => {
       document.querySelectorAll(sel).forEach(el => {
@@ -212,11 +273,10 @@ import * as THREE from 'three'
     })
   }
 
-  /* ─── PATTERN 5B: Block Reveal (scrub-based, reveals then hides, reverses on scroll up) ─── */
   function initBlockReveal() {
     const pairs = [
-      { el: document.querySelector('.craft-mh-left'), color: 'var(--accent)' },
-      { el: document.querySelector('.craft-mh-right'), color: 'var(--accent-cyan)' },
+      { el: document.querySelector('.things-mh-left'), color: 'var(--accent)' },
+      { el: document.querySelector('.things-mh-right'), color: 'var(--accent-cyan)' },
     ]
     pairs.forEach(({ el, color }) => {
       if (!el) return
@@ -232,12 +292,11 @@ import * as THREE from 'three'
         .set(overlay, { transformOrigin: 'right' })
         .to(overlay, { scaleX: 0, duration: 0.5, ease: 'expo.inOut' })
       ScrollTrigger.create({
-        trigger: el.closest('.craft-masthead') || el, start: 'top 85%', end: 'top 45%',
+        trigger: el.closest('.things-header') || el, start: 'top 85%', end: 'top 45%',
         scrub: 0.3, animation: tl
       })
     })
-    // Apply block reveal to other text elements without existing animations
-    document.querySelectorAll('.section-eyebrow, .section-desc, .craft-tech-header, .stat-label, .footer-tagline').forEach(el => {
+    document.querySelectorAll('.section-eyebrow, .section-desc, .things-tool-header, .stat-label, .footer-tagline').forEach(el => {
       el.style.position = 'relative'
       const ov = document.createElement('span')
       ov.style.cssText = 'position:absolute;inset:0;background:var(--accent);z-index:2;pointer-events:none'
@@ -254,22 +313,20 @@ import * as THREE from 'three'
     })
   }
 
-  /* ─── PATTERN 5C: Parallel Character Stagger (bio, reverses) ─── */
   function initParallelStagger() {
-    const bio = document.querySelector('.craft-piece-bio p')
+    const bio = document.querySelector('.things-piece-bio p')
     if (!bio || typeof SplitType === 'undefined') return
     const split = new SplitType(bio, { types: 'lines,chars' })
     split.lines.forEach(line => {
       line.querySelectorAll('.char').forEach((char, i) => {
         gsap.fromTo(char, { y: '100%', opacity: 0 }, {
           y: '0%', opacity: 1, duration: 1.0, ease: 'expo.out', delay: i * 0.06,
-          scrollTrigger: { trigger: bio.closest('.craft-piece'), start: 'top 85%', toggleActions: 'play none none reverse' }
+          scrollTrigger: { trigger: bio.closest('.things-piece'), start: 'top 85%', toggleActions: 'play none none reverse' }
         })
       })
     })
   }
 
-  /* ─── PATTERN 6: Tilt Sections (entrance only — no pin) ─── */
   function initTiltSections() {
     document.querySelectorAll('.section').forEach(section => {
       const container = section.querySelector('.section-container')
@@ -281,11 +338,10 @@ import * as THREE from 'three'
     })
   }
 
-  /* ─── PATTERN 7: Parallax Lerp (with RAF cleanup) ─── */
   function initParallaxLerp() {
-    document.querySelectorAll('.hero-bg-image, .marquee-bg-image, .craft-bg-image, .collab-bg-image').forEach(bg => {
+    document.querySelectorAll('.hero-bg-image, .marquee-bg-image, .things-bg-image, .collab-bg-image').forEach(bg => {
       const speed = bg.classList.contains('hero-bg-image') ? 0.08 : 0.04
-      let targetY = 0, currentY = 0, running = true
+      let targetY = 0, currentY = 0
       ScrollTrigger.create({
         trigger: bg.parentElement, start: 'top bottom', end: 'bottom top',
         onUpdate: () => {
@@ -294,67 +350,16 @@ import * as THREE from 'three'
         }
       })
       animCallbacks.push(() => {
-        if (!running) return
         currentY = lerp(currentY, targetY, CFG.lerpFactor)
         bg.style.transform = `translate3d(0, ${currentY.toFixed(2)}px, 0)`
       })
     })
   }
 
-  /* ─── PATTERN 8: Image Trail (simplified, no external deps) ─── */
-  function initImageTrail() {
-    if (window.innerWidth <= 768) return
-    const container = document.getElementById('trail-container')
-    if (!container) return
-    const colors = ['#8b5cf6', '#06b6d4', '#f59e0b', '#10b981', '#a78bfa', '#f472b6', '#ec4899', '#6366f1']
-
-    function createTrailImage() {
-      const cr = container.getBoundingClientRect()
-      const wrap = document.createElement('div')
-      wrap.style.cssText = `position:absolute;left:${trailLerpX - cr.left}px;top:${trailLerpY - cr.top}px;pointer-events:none`
-      for (let i = 0; i < CFG.trail.sliceCount; i++) {
-        const slice = document.createElement('div')
-        const h = 100 / CFG.trail.sliceCount
-        slice.style.cssText = `position:absolute;width:100%;height:${h + 0.1}%;top:${i * h}%;overflow:hidden;clip-path:inset(50% 0 50% 0);transition:clip-path ${CFG.trail.revealDuration}ms ease ${i * CFG.trail.staggerIn}ms;border-radius:4px`
-        const dot = document.createElement('div')
-        dot.style.cssText = `width:120px;height:150px;border-radius:8px;background:${colors[(trailCurrentIndex + i) % colors.length]};opacity:0.35;transform:scale(0.8)`
-        slice.appendChild(dot)
-        wrap.appendChild(slice)
-      }
-      container.appendChild(wrap)
-      trailCurrentIndex++
-      requestAnimationFrame(() => {
-        wrap.style.left = `${trailMouseX - cr.left}px`
-        wrap.style.top = `${trailMouseY - cr.top}px`
-        wrap.querySelectorAll('div').forEach(s => { s.style.clipPath = 'inset(0% 0 0% 0)' })
-      })
-      const entry = { el: wrap, born: Date.now() }
-      trailActiveImages.push(entry)
-      setTimeout(() => {
-        entry.el.querySelectorAll('div').forEach((s, i) => {
-          s.style.transition = `clip-path ${CFG.trail.fadeDuration}ms ease ${i * CFG.trail.staggerOut}ms`
-          s.style.clipPath = 'inset(50% 0 50% 0)'
-        })
-        setTimeout(() => { entry.el.remove(); trailActiveImages = trailActiveImages.filter(a => a !== entry) }, CFG.trail.fadeDuration + CFG.trail.sliceCount * CFG.trail.staggerOut)
-      }, CFG.trail.imageLifespan)
-    }
-
-    document.addEventListener('mousemove', e => { trailMouseX = e.clientX; trailMouseY = e.clientY })
-    animCallbacks.push(() => {
-      trailLerpX = lerp(trailLerpX, trailMouseX, 0.1)
-      trailLerpY = lerp(trailLerpY, trailMouseY, 0.1)
-      if (!trailLastX && !trailLastY) { trailLastX = trailMouseX; trailLastY = trailMouseY }
-      if (Math.hypot(trailMouseX - trailLastX, trailMouseY - trailLastY) > CFG.trail.mouseThreshold) {
-        createTrailImage(); trailLastX = trailMouseX; trailLastY = trailMouseY
-      }
-    })
-  }
-
-  /* ─── PATTERN 9: Tech Grid Hover Highlight ─── */
   function initHoverHighlight() {
     const grid = document.getElementById('tech-grid')
     if (!grid) return
-    const items = grid.querySelectorAll('.craft-tech-item')
+    const items = grid.querySelectorAll('.things-tool-item')
     if (!items.length) return
     const hl = document.createElement('div')
     hl.className = 'highlight-tracker'
@@ -363,7 +368,7 @@ import * as THREE from 'three'
     const colors = ['#8b5cf6', '#06b6d4', '#f59e0b', '#10b981']
     items.forEach((item, i) => { item.dataset.color = colors[i % colors.length] })
     grid.addEventListener('mousemove', e => {
-      const t = document.elementFromPoint(e.clientX, e.clientY)?.closest('.craft-tech-item')
+      const t = document.elementFromPoint(e.clientX, e.clientY)?.closest('.things-tool-item')
       if (t) {
         const tr = t.getBoundingClientRect(), gr = grid.getBoundingClientRect()
         hl.style.cssText = `transform:translate3d(${tr.left - gr.left}px,${tr.top - gr.top}px,0);width:${tr.width}px;height:${tr.height}px;background:${t.dataset.color};opacity:0.15`
@@ -372,7 +377,6 @@ import * as THREE from 'three'
     grid.addEventListener('mouseleave', () => { hl.style.opacity = '0' })
   }
 
-  /* ─── PATTERN 10: 3D Card Tilt (subtle, on doppel inner, no edge reveal) ─── */
   function init3DCardTilt() {
     document.querySelectorAll('.connect-card').forEach(card => {
       const inner = card.querySelector('.doppel')
@@ -391,7 +395,6 @@ import * as THREE from 'three'
     })
   }
 
-  /* ─── PATTERN 11: Physics Particle Explosion ─── */
   function initPhysicsExplosion() {
     const container = document.getElementById('footer-explosion')
     if (!container) return
@@ -463,7 +466,6 @@ import * as THREE from 'three'
     ScrollTrigger.create({ trigger: '#main-footer', start: 'top 85%', once: true, onEnter: explode })
   }
 
-  /* ─── PATTERN 13: Block Grid Transition (colorful, full-screen fit, slow) ─── */
   function initBlockGridTransition() {
     const overlay = document.getElementById('block-grid-overlay')
     if (!overlay) return
@@ -483,12 +485,17 @@ import * as THREE from 'three'
       div.style.cssText = `position:absolute;left:${offsetX + c * s}px;top:${offsetY + r * s}px;width:${s}px;height:${s}px;background:linear-gradient(180deg,hsl(${h1},65%,45%),hsl(${h2},60%,30%));opacity:1`
       frag.appendChild(div)
     }
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;pointer-events:none'
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:9998;pointer-events:none'
     overlay.appendChild(frag)
+    overlay._blocksReady = true
+  }
+
+  function playBlockGridExit() {
+    const overlay = document.getElementById('block-grid-overlay')
+    if (!overlay || !overlay._blocksReady) return
     gsap.to(overlay.children, { opacity: 0, duration: 0.12, stagger: { amount: 1.2, from: 'random' }, delay: 0.4, ease: 'expo.inOut', onComplete: () => { overlay.style.display = 'none' } })
   }
 
-  /* ─── PATTERN 14: SVG Stroke Draw + Parallax ─── */
   function initSVGDraw() {
     const svg = document.querySelector('.deco-svg')
     document.querySelectorAll('#deco-stroke-path, #deco-wave-path').forEach(path => {
@@ -521,7 +528,7 @@ import * as THREE from 'three'
         opacity: 0,
         ease: 'none',
         scrollTrigger: {
-          trigger: '.craft-section',
+          trigger: '.things-section',
           start: 'top bottom',
           end: 'top 20%',
           scrub: 0.5,
@@ -530,7 +537,6 @@ import * as THREE from 'three'
     }
   }
 
-  /* ─── PATTERN 17: Footer Progress Bar (no pin — was hiding footer) ─── */
   function initPinnedFooter() {
     const footer = document.getElementById('main-footer')
     if (!footer) return
@@ -550,7 +556,6 @@ import * as THREE from 'three'
     })
   }
 
-  /* ─── PATTERN 18: Mobile Menu (GSAP stagger on existing element) ─── */
   function initMobileMenuGsap() {
     const hamburger = document.getElementById('hamburger-btn')
     const menu = document.getElementById('mobile-menu')
@@ -584,7 +589,6 @@ import * as THREE from 'three'
 
     hamburger.addEventListener('click', () => { isOpen ? closeMenu() : openMenu() })
 
-    // Link clicks close menu — no hamburger.click() to avoid toggle conflicts
     links.forEach(l => {
       l.addEventListener('click', (e) => {
         e.stopPropagation()
@@ -593,33 +597,40 @@ import * as THREE from 'three'
     })
   }
 
-  /* ─── PATTERN 19: Infinite SVG Text Path ─── */
   function initInfiniteTextPath() {
-    document.querySelectorAll('.infinite-text-path').forEach(tp => {
-      gsap.to(tp, { attr: { startOffset: '100%' }, duration: 45, ease: 'none', repeat: -1 })
+    const els = document.querySelectorAll('.infinite-text-path')
+    if (!els.length) return
+    const offsets = new Array(els.length).fill(0)
+    animCallbacks.push(() => {
+      for (let i = 0; i < els.length; i++) {
+        offsets[i] = (offsets[i] + 0.04) % 100
+        els[i].setAttribute('startOffset', offsets[i] + '%')
+      }
     })
   }
 
-  /* ─── CASCADE PROJECTS ─── */
   function renderCascadeProjects() {
     const stack = document.getElementById('projects-cascade')
-    if (!stack || !SITE_CONFIG.projects) return
-    const projects = SITE_CONFIG.projects
+    if (!stack || !CONFIG.projects) return
+    const projects = CONFIG.projects
     const rotations = [-1.2, 1.8, -0.8, 2.1, -1.5, 0.9]
     const offsets = [0, 30, 60, 20, 50, 10]
     const zIndices = [6, 5, 4, 3, 2, 1]
     const styles = ['cascade-spotlight', 'cascade-bordered', '', 'cascade-glass', 'cascade-bordered-right', '']
+
+    const frag = document.createDocumentFragment()
     projects.forEach((p, i) => {
       const styleClass = styles[i % styles.length]
       const card = document.createElement('div')
       card.className = `cascade-card ${styleClass}`
       card.style.cssText = `--rotate:${rotations[i % rotations.length]}deg;--offset-y:${offsets[i % offsets.length]}px;--z:${zIndices[i % zIndices.length]};transition-delay:${i * 0.12}s`
       card.innerHTML = `<div class="doppel"><div class="doppel-inner"${styleClass === 'cascade-spotlight' ? ' style="background:rgba(139,92,246,0.04);border:1px solid rgba(139,92,246,0.08)"' : ''}><div class="cascade-card-header"><div class="cascade-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="${getIconPath(p.icon || 'folder')}"/></svg></div><span class="cascade-card-lang" style="${p.langColor ? 'color:' + p.langColor : ''}">${p.language || ''}</span></div><div class="cascade-card-name">${p.name}</div><div class="cascade-card-desc">${p.tagline || p.description}</div><div class="cascade-card-stats"><span class="cascade-card-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>${p.stars || 0}</span><span class="cascade-card-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3a3 3 0 00-3 3v12a3 3 0 003 3h12a3 3 0 003-3V6a3 3 0 00-3-3H6zm4 5h4M10 12h4M10 16h2"/></svg>${p.forks || 0}</span></div><div class="cascade-card-tags">${(p.tags || []).slice(0, 3).map(t => `<span class="cascade-card-tag">${t}</span>`).join('')}</div><a href="${p.url || '#'}" target="_blank" rel="noopener noreferrer" style="position:absolute;inset:0;z-index:1" aria-label="${p.name}"></a></div></div>`
-      stack.appendChild(card)
+      frag.appendChild(card)
     })
+    stack.appendChild(frag)
     const statsRow = document.getElementById('project-stats-row')
-    if (statsRow && SITE_CONFIG.projectStats) {
-      SITE_CONFIG.projectStats.forEach((s, i) => {
+    if (statsRow && CONFIG.projectStats) {
+      CONFIG.projectStats.forEach((s, i) => {
         const cardWrapper = document.createElement('div'); cardWrapper.className = 'stat-card'; cardWrapper.style.transitionDelay = `${i * 0.12}s`
         const isInfinity = s.target === '\u221E'
         cardWrapper.innerHTML = `<div class="stat-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="${getStatIcon(s.icon || 'folder-open')}"/></svg></div><div class="stat-value${isInfinity ? ' infinity' : ''}" data-target="${s.target}">${isInfinity ? '\u221E' : '0'}</div><div class="stat-label">${s.label || ''}</div>`
@@ -627,11 +638,11 @@ import * as THREE from 'three'
       })
       initStatCounters()
     }
-    setTimeout(() => { observeReveal('.cascade-card'); observeReveal('.stat-card'); initCascadeTilt() }, 100)
+    requestAnimationFrame(() => { observeReveal('.cascade-card'); observeReveal('.stat-card'); initCascadeTilt() })
   }
 
   function initCascadeTilt() {
-    if (window.innerWidth <= 768) return
+    if (isMobile) return
     document.querySelectorAll('.cascade-card').forEach(card => {
       const inner = card.querySelector('.doppel')
       if (!inner) return
@@ -643,7 +654,6 @@ import * as THREE from 'three'
     })
   }
 
-  /* ─── ICON HELPERS ─── */
   function getIconPath(name) {
     const icons = { 'crosshair': 'M12 2a10 10 0 1010 10M12 2a10 10 0 010 20M2 12h20M12 2v20M4.93 4.93l14.14 14.14M4.93 19.07L19.07 4.93', 'robot': 'M12 8V4m0 4a4 4 0 014 4v4a4 4 0 01-4 4m0-8a4 4 0 00-4 4v2M8 2l4 2 4-2M6 16h12M6 20h12', 'lightning': 'M13 2L3 14h9l-1 8 10-12h-9l1-8z', 'question': 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8-8-3.59 8-8 8zm-1-6h2v2h-2zm0-2V8h2v4l-1 1h-1z', 'folder': 'M2 6a2 2 0 012-2h5l2 2h9a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V6z', 'notebook': 'M4 2h16a2 2 0 012 2v16a2 2 0 01-2 2H4a2 2 0 01-2-2V4a2 2 0 012-2zm2 4h12M6 10h12M6 14h8M6 18h4' }
     return icons[name] || icons.folder
@@ -653,30 +663,128 @@ import * as THREE from 'three'
     return icons[name] || icons['folder-open']
   }
 
-  /* ─── MARQUEE ─── */
   function renderMarquee() {
-    const track = document.getElementById('marquee-content')
-    if (!track) return
-    const items = SITE_CONFIG.techStack || []
-    track.innerHTML = [...items, ...items].map(t => `<span class="marquee-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>${t.name}</span>`).join('')
+    const items = CONFIG.techStack || []
+    if (!items.length) return
+    initMarquee3D(items)
+  }
+  function initMarquee3D(items) {
+    const container = document.querySelector('.marquee-section')
+    if (!container) return
+    const oldTrack = document.getElementById('marquee-content')
+    if (oldTrack) oldTrack.style.display = 'none'
+
+    let renderer, scene, camera, group, animFn, ro
+
+    function createPillTexture(text) {
+      const c = document.createElement('canvas')
+      const ctx = c.getContext('2d')
+      ctx.font = `500 ${MARQUEE.fontSize}px "Cabinet Grotesk", system-ui, sans-serif`
+      const tw = ctx.measureText(text).width
+      c.width = tw + MARQUEE.padX * 2
+      c.height = MARQUEE.fontSize + MARQUEE.padY * 2 + 2
+      const ctx2 = c.getContext('2d')
+      const r = c.height / 2
+      ctx2.beginPath(); ctx2.roundRect(0, 0, c.width, c.height, r); ctx2.closePath()
+      ctx2.fillStyle = 'rgba(255,255,255,0.03)'
+      ctx2.fill()
+      ctx2.strokeStyle = 'rgba(255,255,255,0.06)'
+      ctx2.lineWidth = 1; ctx2.stroke()
+      ctx2.fillStyle = '#888'
+      ctx2.font = `500 ${MARQUEE.fontSize}px "Cabinet Grotesk", system-ui, sans-serif`
+      ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle'
+      ctx2.fillText(text, c.width / 2, c.height / 2)
+      const tex = new THREE.CanvasTexture(c)
+      tex.minFilter = THREE.LinearFilter
+      return { tex, w: c.width, h: c.height }
+    }
+
+    function setup() {
+      cleanup()
+      const w = container.clientWidth, h = container.clientHeight
+      if (w < 1 || h < 1) return
+      scene = new THREE.Scene()
+      camera = new THREE.PerspectiveCamera(MARQUEE.fov, w / h, 0.1, MARQUEE.far)
+      const radius = Math.min(w * MARQUEE.radiusProp, MARQUEE.radiusMax)
+      camera.position.set(0, 0, radius * MARQUEE.camMult)
+      camera.lookAt(0, 0, 0)
+
+      const pr = isLowEnd ? Math.min(devicePixelRatio, 1) : Math.min(devicePixelRatio, 2)
+      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false, powerPreference: 'low-power' })
+      renderer.setSize(w, h)
+      renderer.setPixelRatio(pr)
+      renderer.domElement.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;z-index:1'
+      container.appendChild(renderer.domElement)
+
+      group = new THREE.Group()
+      const count = items.length
+      items.forEach((item, i) => {
+        const { tex, w: tw, h: th } = createPillTexture(item.name)
+        const s = MARQUEE.pillScale
+        const geo = new THREE.PlaneGeometry(tw * s, th * s)
+        const mat = new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, side: THREE.DoubleSide })
+        const mesh = new THREE.Mesh(geo, mat)
+        const angle = (i / count) * Math.PI * 2
+        mesh.position.set(Math.sin(angle) * radius, 0, Math.cos(angle) * radius)
+        mesh.lookAt(mesh.position.x * 2, 0, mesh.position.z * 2)
+        group.add(mesh)
+      })
+      scene.add(group)
+
+      const _v = new THREE.Vector3()
+      animFn = () => {
+        group.rotation.y += MARQUEE.rotSpeed
+        const camZ = camera.position.z
+        group.children.forEach(mesh => {
+          mesh.getWorldPosition(_v)
+          const depth = camZ - _v.z
+          const t = (depth - radius) / (radius * 2)
+          mesh.material.opacity = 1.0 - t * (1 - MARQUEE.fadeMin)
+        })
+        renderer.render(scene, camera)
+      }
+      animCallbacks.push(animFn)
+    }
+
+    function cleanup() {
+      if (animFn) { const i = animCallbacks.indexOf(animFn); if (i > -1) animCallbacks.splice(i, 1); animFn = null }
+      if (renderer) { renderer.domElement.remove(); renderer.dispose(); renderer = null }
+      if (scene) { scene.traverse(c => { if (c.isMesh) { c.geometry.dispose(); c.material.map?.dispose(); c.material.dispose() } }); scene = null }
+    }
+
+    setup()
+    ro = new ResizeObserver(() => setup())
+    ro.observe(container)
   }
 
-  /* ─── CRAFT ─── */
   function renderCraft() {
-    const bio = document.getElementById('craft-bio')
-    if (bio) { const p = bio.querySelector('p'); if (p) p.innerHTML = `hey, im <strong>notlousybook</strong> — a self-taught 15 yr old dev from pluto (not actually). i build stuff with code, mostly ai tools, creative coding projects, and whatever else feels interesting. some of it is even useful. also i play geometry dash.` }
+    const bio = document.getElementById('things-bio')
+    if (bio) { const p = bio.querySelector('p'); if (p) p.innerHTML = `hi lol, im <strong>notlousybook</strong> i think, a self-taught (&lt;-lie) 15 yr old developer coding random shi i pulled out of my ahh when i was sleeping or smthing, like putting my well paid ai workers (bro uses free tier tho) to code up the most random ahh code and repos, dw tho i make good quality assurace, i hate most quality skills and plugins or whatever i stay RAW, no no thats not what i meant don't get any idea YOU BAKA, ahhhh what is this portfolio, i'm never getting hired 😔✌️, (if u read this congrats ig idk for what reason tho, what else do i even put here atp 😭, this shi looks best with microsoft fluent emoji's btw and yes i glaze microsoft and whatever windows 11 or edge i love edging sm twin, i love people stealing all me data [&lt;- pirate lousy here]). Funfact i don't sell shi cuz i don't have a bank card or paypal or whatever but not like my projects get any attention anyway, if u looked at my site this much THANK YOU SO MUCH FOR READING THROUGH THIS I WOULD LOWK MARRY YOU IF U KNEW ME NGL THANK UUUU.` }
     const statsGrid = document.getElementById('about-stats-grid')
-    if (statsGrid && SITE_CONFIG.aboutStats) statsGrid.innerHTML = `<div class="craft-stats-grid">${SITE_CONFIG.aboutStats.map(s => `<div class="craft-stat"><div class="stat-value">${s.value}</div><div class="stat-label">${s.label}</div></div>`).join('')}</div>`
+    if (statsGrid && CONFIG.aboutStats) statsGrid.innerHTML = `<div class="things-stats-grid">${CONFIG.aboutStats.map(s => `<div class="things-stat"><div class="stat-value">${s.value}</div><div class="stat-label">${s.label}</div></div>`).join('')}</div>`
     const techGrid = document.getElementById('tech-grid')
-    if (techGrid && SITE_CONFIG.techStack) techGrid.innerHTML = SITE_CONFIG.techStack.map(t => `<span class="craft-tech-item"><span class="tech-dot"></span>${t.name}</span>`).join('')
-    observeReveal('.craft-piece')
+    if (techGrid && CONFIG.techStack) {
+      const iconMap = {
+        'Python':'python','JavaScript':'javascript','TypeScript':'typescript',
+        'Three.js':'threedotjs','PyWebView':'python','Next.js':'nextdotjs',
+        'Discord.py':'discord','Git':'git','HTML/CSS':'html5',
+        'DeepSeek':'deepseek'
+      }
+      techGrid.innerHTML = CONFIG.techStack.map(t => {
+        const slug = iconMap[t.name]
+        const icon = slug
+          ? `<img class="tech-icon" src="https://cdn.simpleicons.org/${slug}" alt="" loading="lazy" />`
+          : `<span class="tech-dot"></span>`
+        return `<span class="things-tool-item">${icon}${t.name}</span>`
+      }).join('')
+    }
+    observeReveal('.things-piece')
   }
 
-  /* ─── COLLAB ─── */
   function renderCollab() {
     const grid = document.getElementById('collab-grid')
-    if (!grid || !SITE_CONFIG.collabCards) return
-    grid.innerHTML = SITE_CONFIG.collabCards.map((c, i) => `<div class="connect-card" style="transition-delay:${i * 0.12}s"><div class="doppel"><div class="doppel-inner"><div class="connect-card-icon" style="color:${c.iconColor || 'var(--accent)'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="${getCollabIcon(c.icon)}"/></svg></div><div class="connect-card-title">${c.title}</div><div class="connect-card-desc">${c.desc}</div></div></div></div>`).join('')
+    if (!grid || !CONFIG.collabCards) return
+    grid.innerHTML = CONFIG.collabCards.map((c, i) => `<div class="connect-card" style="transition-delay:${i * 0.12}s"><div class="doppel"><div class="doppel-inner"><div class="connect-card-icon" style="color:${c.iconColor || 'var(--accent)'}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="${getCollabIcon(c.icon)}"/></svg></div><div class="connect-card-title">${c.title}</div><div class="connect-card-desc">${c.desc}</div></div></div></div>`).join('')
     observeReveal('.connect-card'); observeReveal('.connect-cta')
   }
   function getCollabIcon(name) {
@@ -684,7 +792,6 @@ import * as THREE from 'three'
     return icons[name] || icons.lightning
   }
 
-  /* ─── INTERSECTION OBSERVER ─── */
   function observeReveal(selector) {
     const els = document.querySelectorAll(selector)
     if (!els.length) return
@@ -692,7 +799,6 @@ import * as THREE from 'three'
     els.forEach(el => obs.observe(el))
   }
 
-  /* ─── STAT COUNTER ─── */
   function initStatCounters() {
     document.querySelectorAll('.stat-card').forEach(card => {
       const valEl = card.querySelector('.stat-value')
@@ -719,13 +825,11 @@ import * as THREE from 'three'
 
   document.getElementById('footer-year') && (document.getElementById('footer-year').textContent = new Date().getFullYear())
 
-  /* ─── NAV ─── */
   function initNav() {
     const hamburger = document.getElementById('hamburger-btn')
     const mobileMenu = document.getElementById('mobile-menu')
     const navLinks = document.querySelectorAll('.nav-link, .mobile-menu-link')
     if (!hamburger || !mobileMenu) return
-    // Smooth scroll via Lenis for ALL nav links (desktop + mobile)
     navLinks.forEach(link => {
       link.addEventListener('click', e => {
         const href = link.getAttribute('href')
@@ -740,9 +844,8 @@ import * as THREE from 'three'
     if (lenis) lenis.on('scroll', () => { let current = ''; sections.forEach(s => { if (s.getBoundingClientRect().top < 200) current = s.id }); navItems.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + current)) })
   }
 
-  /* ─── NAV HOVER EFFECT (desktop only — fullscreen blur + item text) ─── */
   function initNavHoverEffect() {
-    if (window.innerWidth <= 768) return
+    if (isMobile) return
     const links = document.querySelectorAll('.nav-link')
     if (!links.length) return
     let overlay = document.querySelector('.nav-hover-overlay')
@@ -769,15 +872,14 @@ import * as THREE from 'three'
     overlay.addEventListener('mouseleave', () => { overlay.classList.remove('visible') })
   }
 
-  /* ─── SECTION HEADER REVEALS (reverses on scroll up) ─── */
   function initSectionReveals() {
     document.querySelectorAll('.section .section-header').forEach(h => {
       gsap.fromTo(h, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: h.closest('.section'), start: 'top 85%', toggleActions: 'play none none reverse' } })
     })
   }
 
-  /* ─── CURSOR GLOW ─── */
   function initCursorGlow() {
+    if (isMobile) return
     const el = document.createElement('div')
     el.className = 'cursor-glow'; document.body.appendChild(el)
     let tx = 0, ty = 0, cx = 0, cy = 0
@@ -785,8 +887,247 @@ import * as THREE from 'three'
     document.addEventListener('mouseleave', () => el.classList.remove('visible'))
     animCallbacks.push(() => { cx = lerp(cx, tx, 0.08); cy = lerp(cy, ty, 0.08); el.style.cssText += `left:${cx.toFixed(2)}px;top:${cy.toFixed(2)}px` })
   }
+  // ─── IndexedDB Audio Cache ───
+  const DB_NAME = 'LousyWebCache', DB_VER = 1, STORE = 'audio'
+  function dbOpen() {
+    return new Promise((res, rej) => {
+      const r = indexedDB.open(DB_NAME, DB_VER)
+      r.onupgradeneeded = e => { const d = e.target.result; if (!d.objectStoreNames.contains(STORE)) d.createObjectStore(STORE, { keyPath: 'id' }) }
+      r.onsuccess = e => res(e.target.result)
+      r.onerror = e => rej(e.target.error)
+    })
+  }
+  async function cacheGet(id) { try { const db = await dbOpen(); return new Promise((res, rej) => { const t = db.transaction(STORE, 'readonly'), r = t.objectStore(STORE).get(id); r.onsuccess = () => res(r.result?.blob || null); r.onerror = () => res(null) }) } catch { return null } }
+  async function cacheSet(id, blob) { try { const db = await dbOpen(); return new Promise((res, rej) => { const t = db.transaction(STORE, 'readwrite'); t.objectStore(STORE).put({ id, blob, ts: Date.now() }); t.oncomplete = res; t.onerror = rej }) } catch {} }
 
-  /* ─── HERO ENTRY (slowed) ─── */
+  // ─── Toast System ───
+  function showToast(msg, type = 'info', duration = 4000) {
+    const c = document.getElementById('toast-container')
+    if (!c) return
+    const el = document.createElement('div')
+    el.className = `toast toast-${type}`
+    el.textContent = msg
+    c.appendChild(el)
+    setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 400) }, duration)
+  }
+
+  function initAudioReactivity() {
+    const video = document.getElementById('bg-music')
+    const overlay = document.getElementById('start-overlay')
+    const loaderStatus = document.getElementById('loader-audio-status')
+    const progressLine = document.getElementById('start-progress-line')
+    const promptEl = document.getElementById('start-prompt')
+    if (!video || !overlay) return
+
+    let audioCtx, source, analyzer, filter, gain, dataArray, bufferLength
+    const BASS_BINS_PCT = 0.1
+    let bassBins = 0
+    let started = false
+    let videoSrcSet = false
+
+    function setupAudioCtx() {
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+        source = audioCtx.createMediaElementSource(video)
+        analyzer = audioCtx.createAnalyser()
+        analyzer.fftSize = 256
+        filter = audioCtx.createBiquadFilter()
+        filter.type = 'lowpass'; filter.frequency.value = 3200; filter.Q.value = 0.707
+        gain = audioCtx.createGain()
+        gain.gain.value = 1.0
+        source.connect(analyzer); analyzer.connect(gain); gain.connect(filter); filter.connect(audioCtx.destination)
+        bufferLength = analyzer.frequencyBinCount
+        bassBins = Math.max(1, Math.floor(bufferLength * BASS_BINS_PCT))
+        dataArray = new Uint8Array(bufferLength)
+      } catch (e) {
+        console.warn('Audio setup failed:', e)
+        overlay.classList.add('hidden')
+      }
+    }
+
+    function startPlayback() {
+      if (started || !audioCtx) return
+      started = true; audioStartTime = performance.now(); audioReactiveReady = true
+      audioCtx.resume().then(() => video.play().catch(() => {})).catch(() => {})
+      overlay.classList.add('warping')
+      setTimeout(() => overlay.classList.add('hidden'), 750)
+    }
+
+    let audioStartTime = 0
+
+    function updateProgress(pct, label) {
+      if (progressLine) progressLine.style.width = Math.min(pct, 100) + '%'
+      if (loaderStatus) {
+        const dot = loaderStatus.querySelector('.loader-audio-dot')
+        const txt = loaderStatus.querySelector('.loader-audio-text')
+        if (txt) txt.textContent = label || 'preparing audio'
+        if (dot) dot.style.animationPlayState = pct >= 100 ? 'paused' : 'running'
+      }
+    }
+
+    function setVideoSrc(blob) {
+      const url = URL.createObjectURL(blob)
+      video.src = url
+      videoSrcSet = true
+    }
+
+    function markReady() {
+      overlay.classList.add('ready')
+      if (promptEl) promptEl.textContent = 'click to start or somthing'
+    }
+
+    // ── Smart load logic ──
+    ;(async () => {
+      const cacheKey = 'audio_discord_checkpoint'
+      const sourceUrl = video.querySelector('source')?.src
+      if (!sourceUrl) return
+
+      // 1. Try cache
+      const cachedBlob = await cacheGet(cacheKey)
+      if (cachedBlob) {
+        updateProgress(100, "loaded from cache (i'm in ur browser)")
+        setVideoSrc(cachedBlob)
+        markReady()
+        showToast('Audio ready (cached in my ahh)', 'success', 2500)
+        return
+      }
+
+      // 2. Stream download with speed tracking
+      try {
+        const response = await fetch(sourceUrl)
+        const total = +response.headers.get('Content-Length') || 0
+        const reader = response.body.getReader()
+        const chunks = []
+        let downloaded = 0
+        let startTime = performance.now()
+        const speeds = []
+        let readyToPlay = false
+        let slowWarned = false
+        let lastToastPct = 0
+
+        // Estimate: 175kbps ≈ 22KB/s
+        const EST_BITRATE_KBPS = 22
+
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+
+          chunks.push(value)
+          downloaded += value.length
+          const elapsed = (performance.now() - startTime) / 1000
+          const instantSpeed = (downloaded / 1024) / Math.max(elapsed, 0.1)
+          speeds.push(instantSpeed)
+          if (speeds.length > 30) speeds.shift()
+          const avgSpeed = speeds.reduce((a, b) => a + b, 0) / speeds.length
+
+          const pct = total ? Math.round(downloaded / total * 100) : 0
+          const speedRatio = avgSpeed / EST_BITRATE_KBPS
+          const bufferedSec = (downloaded / 1024) / EST_BITRATE_KBPS
+          const needBuf = speedRatio < 0.8 ? 15 : speedRatio < 1.5 ? 8 : 3
+          const label = `syncing audio ${pct}% (wtf is ts)`
+
+          updateProgress(pct, label)
+
+          // Download progress toast
+          const toastPct = [25, 50, 75].find(t => pct >= t && lastToastPct < t)
+          if (toastPct) { lastToastPct = toastPct; showToast(`Audio ${toastPct}% downloaded${toastPct === 75 ? ' guh' : ''}`, 'info', 2000) }
+
+          // Check if we have enough buffer to play
+          if (!readyToPlay && pct >= 5 && bufferedSec >= needBuf) {
+            readyToPlay = true
+            const partialBlob = new Blob(chunks, { type: 'audio/mpeg' })
+            setVideoSrc(partialBlob)
+            markReady()
+          }
+
+          // Slow connection warning
+          if (!slowWarned && pct >= 10 && speedRatio < 0.5 && pct < 80) {
+            slowWarned = true
+            showToast('Slow connection — audio may stutter (brother from another mother)', 'warning', 5000)
+          }
+        }
+
+        // Full download complete
+        const fullBlob = new Blob(chunks, { type: 'audio/mpeg' })
+
+        if (!readyToPlay) {
+          setVideoSrc(fullBlob)
+          markReady()
+        } else if (videoSrcSet) {
+          // We already set a blob URL, need to update. Create new one; old will be GC'd
+          video.src = URL.createObjectURL(fullBlob)
+        }
+
+        updateProgress(100, 'audio ready (ig vro)')
+        cacheSet(cacheKey, fullBlob)
+        showToast('Audio fully loaded ✓ (yah enjoy)', 'success', 3000)
+
+      } catch (e) {
+        console.warn('Audio smart-load failed:', e)
+        showToast('Audio may not play (what is your internet twin)', 'warning', 5000)
+        // Fallback: let the video element use its original src
+        video.load()
+        markReady()
+      }
+    })()
+
+    // ── Click handler ──
+    function onClick() {
+      if (!overlay.classList.contains('ready')) return
+      setupAudioCtx()
+      startPlayback()
+      setTimeout(playBlockGridExit, 100)
+    }
+    overlay.addEventListener('click', onClick, { once: true })
+
+    // ── Beat analysis loop ──
+    let beatRunningAvg = 0.15
+    let lastBeatTime = performance.now()
+    const BEAT_COOLDOWN = 250
+
+    animCallbacks.push(() => {
+      if (!started || !analyzer || !dataArray) return
+      analyzer.getByteFrequencyData(dataArray)
+
+      let bassSum = 0
+      for (let i = 0; i < bassBins; i++) bassSum += dataArray[i]
+      const bass = bassSum / (bassBins * 255)
+
+      let avgSum = 0
+      for (let i = 0; i < bufferLength; i++) avgSum += dataArray[i]
+      const avgAll = avgSum / (bufferLength * 255)
+
+      const raw = bass * 0.6 + avgAll * 0.4
+      const beat = clamp(raw, 0, 1)
+      currentBeat = Math.max(0.08, currentBeat * 0.55 + beat * 0.45)
+
+      // Running average for onset detection
+      beatRunningAvg = beatRunningAvg * 0.92 + beat * 0.08
+
+      // Warmup: skip onset detection for first 2s to let running avg stabilize
+      const warmedUp = audioStartTime > 0 && performance.now() - audioStartTime > 2000
+
+      // Onset — energy spike above running average
+      const onset = beat / Math.max(beatRunningAvg, 0.01)
+      const now = performance.now()
+      const hit = warmedUp && onset > 1.4 && now - lastBeatTime > BEAT_COOLDOWN
+
+      // UNIFORM beatSharp: fires at FULL 1.0 on every detected beat
+      // no more weak vs strong variance — every beat hits the same intensity
+      if (hit) {
+        beatOnset = 1
+        beatSharp = 1.0
+        lastBeatTime = now
+      } else {
+        beatOnset *= 0.85
+        beatSharp = Math.max(0, beatSharp * 0.88)
+      }
+
+      document.documentElement.style.setProperty('--beat', currentBeat.toFixed(3))
+      document.documentElement.style.setProperty('--beat-sharp', beatSharp.toFixed(3))
+    })
+  }
+
   function initHeroEntry() {
     const title = document.querySelector('.hero-title')
     if (title) {
@@ -795,14 +1136,31 @@ import * as THREE from 'three'
       title.appendChild(g1); title.appendChild(g2)
     }
     const tl = gsap.timeline({ defaults: { ease: 'expo.out' } })
-    gsap.set('.hero-eyebrow, .hero-title, .hero-typewriter, .hero-actions .btn', { opacity: 0, y: 30 })
+    gsap.set('.hero-eyebrow, .hero-title-group, .hero-typewriter, .hero-actions .btn', { opacity: 0, y: 30 })
     tl.to('.hero-eyebrow', { y: 0, opacity: 1, duration: 1.4 }, 0.3)
-      .to('.hero-title', { y: 0, opacity: 1, duration: 1.8 }, 0.6)
+      .to('.hero-title-group', { y: 0, opacity: 1, duration: 1.8 }, 0.6)
       .to('.hero-typewriter', { y: 0, opacity: 1, duration: 1.2 }, 1.0)
       .to('.hero-actions .btn', { y: 0, opacity: 1, duration: 1, stagger: 0.2 }, 1.4)
   }
 
-  /* ─── PATTERN 2: Hero Scroll Phases (multi-phase onUpdate) ─── */
+  async function loadDiscordAvatar() {
+    const img = document.getElementById('pfp-avatar')
+    if (!img || !CONFIG.discordId) return
+    try {
+      const res = await fetch(`https://japi.rest/discord/v1/user/${CONFIG.discordId}`)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const json = await res.json()
+      const hash = json?.data?.avatar
+      if (hash) {
+        const ext = hash.startsWith('a_') ? 'gif' : 'png'
+        img.src = `https://cdn.discordapp.com/avatars/${CONFIG.discordId}/${hash}.${ext}`
+        img.onload = () => img.classList.add('loaded')
+      }
+    } catch {
+      console.warn('Failed to load Discord avatar')
+    }
+  }
+
   function initHeroScrollPhases() {
     const hero = document.querySelector('.hero')
     if (!hero) return
@@ -840,48 +1198,85 @@ import * as THREE from 'three'
     })
   }
 
-  /* ─── INIT ─── */
-  function init() {
+  const lazyQueue = []
+  function whenVisible(el, fn, threshold = 0.05) {
+    if (!el) return fn()
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          obs.disconnect()
+          requestAnimationFrame(fn)
+        }
+      })
+    }, { threshold })
+    obs.observe(el)
+    lazyQueue.push(obs)
+  }
+
+  async function init() {
+    try {
+      const res = await fetch('config.json')
+      CONFIG = await res.json()
+    } catch (_) {
+      CONFIG = {}
+    }
     gsap.registerPlugin(ScrollTrigger)
+    initCore()
+  }
+
+  function initCore() {
     initAnimDriver()
     initSmoothScroll()
     initTypewriter()
     initHeroShader()
     initCursorGlow()
-    renderCascadeProjects()
-    renderMarquee()
-    renderCraft()
-    renderCollab()
+    initAudioReactivity()
     initNav()
     initHeroEntry()
+    loadDiscordAvatar()
+    observeReveal('.reveal')
 
     setTimeout(() => {
-      initRotatingCycle()       // Pattern 3
-      initExpandingGrid()       // Pattern 4
-      initTextReveals()         // Pattern 5A
-      initBlockReveal()         // Pattern 5B
-      initParallelStagger()     // Pattern 5C
-      initTiltSections()        // Pattern 6 (tilt + pin)
-      initParallaxLerp()        // Pattern 7
-      initImageTrail()          // Pattern 8
-      initHoverHighlight()      // Pattern 9
-      init3DCardTilt()          // Pattern 10
-      initPhysicsExplosion()    // Pattern 11
-      initBlockGridTransition() // Pattern 13
-      initSVGDraw()             // Pattern 14
-      initPinnedFooter()        // Pattern 17
-      initMobileMenuGsap()      // Pattern 18
-      initInfiniteTextPath()    // Pattern 19
-      initHeroScrollPhases()    // Pattern 2
-      initNavHoverEffect()      // Nav hover blur
+      initHeroScrollPhases()
+
+      whenVisible(document.getElementById('projects'), () => {
+        renderCascadeProjects()
+        initSectionReveals()
+      })
+      whenVisible(document.querySelector('.marquee-section'), () => {
+        renderMarquee()
+      })
+      whenVisible(document.getElementById('things'), () => {
+        renderCraft()
+        initRotatingCycle()
+        initExpandingGrid()
+        initTextReveals()
+        initBlockReveal()
+        initParallelStagger()
+        initTiltSections()
+        initParallaxLerp()
+        initHoverHighlight()
+      })
+      whenVisible(document.getElementById('collab'), () => {
+        renderCollab()
+        init3DCardTilt()
+      })
+      whenVisible(document.getElementById('main-footer'), () => {
+        initPhysicsExplosion()
+        initPinnedFooter()
+      })
+
+      initBlockGridTransition()
+      initMobileMenuGsap()
+      initInfiniteTextPath()
+      initSVGDraw()
+      initNavHoverEffect()
 
       ScrollTrigger.refresh()
-    }, 50)
 
-    observeReveal('.reveal')
-    initSectionReveals()
+      document.getElementById('loader-overlay')?.classList.add('hidden')
+    }, 50)
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init)
-  else init()
+  init()
 })()

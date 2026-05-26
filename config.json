@@ -1,0 +1,163 @@
+{
+  "name": "notlousybook",
+  "tagline": "dev from pluto",
+  "discordId": "1217486885421711405",
+
+  "links": {
+    "github": "https://github.com/notlousybook",
+    "discord": "https://discord.com/users/1217486885421711405",
+    "youtube": "https://www.youtube.com/@notlousybook"
+  },
+
+  "hero": {
+    "typewriterTexts": [
+      "makes stuff is KINDA useful idk tho",
+      "holy shit do i know anything lmao",
+      "i'm prob gay atp",
+      "waohhh (marry me)"
+    ]
+  },
+
+  "projectStats": [
+    { "target": "41", "label": "repos", "icon": "folder-open" },
+    { "target": "40", "label": "stars", "icon": "star" },
+    { "target": "∞", "label": "ideas", "icon": "infinity" }
+  ],
+
+  "aboutStats": [
+    { "value": "15", "label": "years old" },
+    { "value": "13, may", "label": "bday" },
+    { "value": "kinda%", "label": "self-taught (no lol, skull emoji)" }
+  ],
+
+  "techStack": [
+    { "name": "Python (brah)" },
+    { "name": "JavaScript (hell nah)" },
+    { "name": "TypeScript (EVEN WORSE)" },
+    { "name": "Three.js (cool)" },
+    { "name": "PyWebView (mmmm)" },
+    { "name": "Next.js (urm)" },
+    { "name": "Discord.py (yay)" },
+    { "name": "ML / AI (idk tho)" },
+    { "name": "Git (mostly ass)" },
+    { "name": "DeepSeek (pro)" },
+    { "name": "HTML/CSS (idk u decide from this page)" },
+    { "name": "World's most ass code #1 award winner" }
+  ],
+
+  "collabCards": [
+    {
+      "icon": "puzzle-piece",
+      "iconColor": "#1F6C9F",
+      "title": "open source (ilysm)",
+      "desc": "plz collab with me i love collab i am so stupid and no ideas in me brain"
+    },
+    {
+      "icon": "chat-text",
+      "iconColor": "#346538",
+      "title": "chat with MEEEE",
+      "desc": "idk still message me uhhh"
+    },
+    {
+      "icon": "lightning",
+      "iconColor": "#956400",
+      "title": "i don't do drugs",
+      "desc": "i think"
+    }
+  ],
+
+  "projects": [
+    {
+      "slug": "pollinations-task-master",
+      "name": "pollinations-task-master",
+      "tagline": "fork of claude-task-master, original now supports custom providers",
+      "description": "fork of claude-task-master using pollinations.ai as the AI provider for free LLM access",
+      "stars": 26,
+      "forks": 7,
+      "language": "JavaScript",
+      "langColor": "#f1e05a",
+      "icon": "crosshair",
+      "url": "https://github.com/notlousybook/pollinations-task-master",
+      "accentColor": "#a78bfa",
+      "tags": ["task-management", "ai", "free", "cursor", "claude", "mcp"],
+      "status": "Active",
+      "license": "MIT with Commons Clause"
+    },
+    {
+      "slug": "deepseek-desktop",
+      "name": "DeepSeek-Desktop",
+      "tagline": "A desktop wrapper for DeepSeek Chat, no Electron bloat",
+      "description": "Lightweight DeepSeek app built with PyWebView. Zero Electron bloat.",
+      "stars": 7,
+      "forks": 2,
+      "language": "Python",
+      "langColor": "#3572A5",
+      "icon": "robot",
+      "url": "https://github.com/notlousybook/DeepSeek-Desktop",
+      "accentColor": "#7db8ff",
+      "tags": ["desktop-app", "deepseek", "ai-client", "python", "lightweight", "pywebview"],
+      "status": "Active"
+    },
+    {
+      "slug": "reloadify",
+      "name": "reloadify",
+      "tagline": "Live-reload for web devs",
+      "description": "A lightweight Python CLI tool for live-reloading web content.",
+      "stars": 0,
+      "forks": 0,
+      "language": "Python",
+      "langColor": "#3572A5",
+      "icon": "lightning",
+      "url": "https://github.com/notlousybook/reloadify",
+      "accentColor": "#fbbf24",
+      "tags": ["cli", "live-reload", "web-development", "python", "tool"],
+      "status": "Stable",
+      "license": "MIT"
+    },
+    {
+      "slug": "lousybot",
+      "name": "LousyBot",
+      "tagline": "Modular Discord bot with LLM smarts",
+      "description": "My trusty Discord bot , doing the things no human should have to.",
+      "stars": 0,
+      "forks": 0,
+      "language": "Python",
+      "langColor": "#3572A5",
+      "icon": "robot",
+      "url": "https://github.com/notlousybook/LousyBot",
+      "accentColor": "#5865F2",
+      "tags": ["discord", "bot", "ai", "python", "modular"],
+      "status": "Alpha"
+    },
+    {
+      "slug": "lousyquiz",
+      "name": "LousyQuiz",
+      "tagline": "Interactive quiz app for exam survival",
+      "description": "An interactive quiz app with AI integration , made for studying.",
+      "stars": 0,
+      "forks": 0,
+      "language": "JavaScript",
+      "langColor": "#f1e05a",
+      "icon": "question",
+      "url": "https://github.com/notlousybook/LousyQuiz",
+      "accentColor": "#f472b6",
+      "tags": ["education", "quiz", "ai", "typescript", "study"],
+      "status": "Alpha"
+    },
+    {
+      "slug": "cline-mcp-prompts",
+      "name": "Cline-MCP-Prompts",
+      "tagline": "Templates for building MCP servers with AI",
+      "description": "A set of .clinerules and llms.txt for MCP creation using Cline or Roo Code.",
+      "stars": 3,
+      "forks": 1,
+      "language": "Shell",
+      "langColor": "#e8fbf2",
+      "icon": "notebook",
+      "url": "https://github.com/notlousybook/Cline-MCP-Prompts",
+      "accentColor": "#34d399",
+      "tags": ["mcp", "cline", "roo-code", "templates", "ai-coding"],
+      "status": "Stable"
+    }
+  ]
+}
