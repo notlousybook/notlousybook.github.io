@@ -81,7 +81,8 @@ import * as THREE from 'three'
   function initTypewriter() {
     const el = document.getElementById('typewriter-text')
     if (!el) return
-    const texts = CONFIG.hero.typewriterTexts || []
+    const texts = CONFIG.hero?.typewriterTexts || []
+    if (!texts.length) return
     let idx = 0, charIdx = 0, deleting = false
     function tick() {
       const current = texts[idx]
@@ -1213,66 +1214,78 @@ import * as THREE from 'three'
     lazyQueue.push(obs)
   }
 
+  const CONFIG_DEFAULTS = {
+    hero: { typewriterTexts: ['makes stuff is KINDA useful idk tho'] },
+    techStack: [],
+    aboutStats: [],
+    projectStats: [],
+    collabCards: [],
+    projects: [],
+    discordId: null,
+  }
+
   async function init() {
     try {
       const res = await fetch('config.json')
-      CONFIG = await res.json()
+      CONFIG = { ...CONFIG_DEFAULTS, ...(await res.json()) }
     } catch (_) {
-      CONFIG = {}
+      CONFIG = { ...CONFIG_DEFAULTS }
     }
-    gsap.registerPlugin(ScrollTrigger)
+    try {
+      gsap.registerPlugin(ScrollTrigger)
+    } catch (_) {}
     initCore()
   }
 
   function initCore() {
-    initAnimDriver()
-    initSmoothScroll()
-    initTypewriter()
-    initHeroShader()
-    initCursorGlow()
-    initAudioReactivity()
-    initNav()
-    initHeroEntry()
-    loadDiscordAvatar()
-    observeReveal('.reveal')
+    try { initAnimDriver() } catch (_) {}
+    try { initSmoothScroll() } catch (_) {}
+    try { initTypewriter() } catch (_) {}
+    try { initHeroShader() } catch (_) {}
+    try { initCursorGlow() } catch (_) {}
+    try { initAudioReactivity() } catch (_) {}
+    try { initNav() } catch (_) {}
+    try { initHeroEntry() } catch (_) {}
+    try { loadDiscordAvatar() } catch (_) {}
+    try { observeReveal('.reveal') } catch (_) {}
 
     setTimeout(() => {
-      initHeroScrollPhases()
+      try { initHeroScrollPhases() } catch (_) {}
 
       whenVisible(document.getElementById('projects'), () => {
-        renderCascadeProjects()
-        initSectionReveals()
+        try { renderCascadeProjects() } catch (_) {}
+        try { initSectionReveals() } catch (_) {}
       })
       whenVisible(document.querySelector('.marquee-section'), () => {
-        renderMarquee()
+        try { renderMarquee() } catch (_) {}
       })
       whenVisible(document.getElementById('things'), () => {
-        renderCraft()
-        initRotatingCycle()
-        initExpandingGrid()
-        initTextReveals()
-        initBlockReveal()
-        initParallelStagger()
-        initTiltSections()
-        initParallaxLerp()
-        initHoverHighlight()
+        try { renderCraft() } catch (_) {}
+        try { initRotatingCycle() } catch (_) {}
+        try { initExpandingGrid() } catch (_) {}
+        try { initTextReveals() } catch (_) {}
+        try { initBlockReveal() } catch (_) {}
+        try { initParallelStagger() } catch (_) {}
+        try { initTiltSections() } catch (_) {}
+        try { initParallaxLerp() } catch (_) {}
+        try { initHoverHighlight() } catch (_) {}
       })
       whenVisible(document.getElementById('collab'), () => {
-        renderCollab()
-        init3DCardTilt()
+        try { renderCollab() } catch (_) {}
+        try { init3DCardTilt() } catch (_) {}
       })
       whenVisible(document.getElementById('main-footer'), () => {
-        initPhysicsExplosion()
-        initPinnedFooter()
+        try { initPhysicsExplosion() } catch (_) {}
+        try { initPinnedFooter() } catch (_) {}
       })
 
-      initBlockGridTransition()
-      initMobileMenuGsap()
-      initInfiniteTextPath()
-      initSVGDraw()
-      initNavHoverEffect()
+      try { initBlockGridTransition() } catch (_) {}
+      try { initMobileMenuGsap() } catch (_) {}
+      try { initInfiniteTextPath() } catch (_) {}
+      try { initSVGDraw() } catch (_) {}
+      try { initNavHoverEffect() } catch (_) {}
 
-      ScrollTrigger.refresh()
+      try { ScrollTrigger.refresh() } catch (_) {}
 
       document.getElementById('loader-overlay')?.classList.add('hidden')
     }, 50)
